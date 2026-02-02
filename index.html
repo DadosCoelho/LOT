@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lotofácil - Teimosinha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <style>
+    :root {
+      --color1: #03750e;
+      --color2: #218e26;
+      --color3: #40a63e;
+      --color4: #5ebf55;
+      --color5: #7cd76d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--color1), var(--color3));
+      color: #fff;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .games-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .game-card {
+      border-radius: 12px;
+      padding: 16px;
+      border-left: 4px solid var(--color1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: #fff;
+    }
+
+    .game-header {
+      margin-bottom: 12px;
+    }
+
+    .game-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--color1);
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .teimosinha-status {
+      margin: 12px 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #166534;
+    }
+
+    .teimosinha-status strong {
+      color: var(--color1);
+      font-weight: 700;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #333;
+      margin: 16px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .numbers-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .num-pill {
+      min-width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #333;
+      background: linear-gradient(135deg, #ffeda6, #fff59a);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .num-pill.hit {
+      background: linear-gradient(135deg, var(--color4), var(--color3));
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(3, 117, 14, 0.4);
+    }
+
+    .prize-box {
+      margin-top: 12px;
+      padding: 0;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    .prize-item {
+      padding: 14px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .prize-item:last-child {
+      border-bottom: none;
+    }
+
+    .prize-label {
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .prize-value {
+      font-weight: 700;
+      color: var(--color1);
+      font-size: 1.1rem;
+    }
+
+    .players-table {
+      margin-top: 12px;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .players-table th,
+    .players-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .players-table th {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      font-weight: 700;
+      color: #333;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .players-table td {
+      font-size: 0.95rem;
+    }
+
+    .players-table td.amount {
+      font-weight: 700;
+      color: var(--color2);
+      text-align: right;
+    }
+
+    .value-hidden {
+      visibility: hidden;
+    }
+
+    .detail-item {
+      margin-top: 16px;
+      padding: 14px;
+      background: #f9fafb;
+      border-radius: 10px;
+      border-left: 3px solid var(--color3);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
+
+    .status-row strong {
+      color: var(--color1);
+    }
+
+    .status-pill {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #fee2e2;
+      color: #b91c1c;
+      white-space: nowrap;
+    }
+
+    .status-pill.win {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      color: #166534;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .error {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid #dc2626;
+    }
+
+    .btn-show-all {
+      margin-top: 16px;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--color2), var(--color3));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(3, 117, 14, 0.3);
+      transition: all 0.3s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-show-all:active {
+      transform: scale(0.98);
+    }
+
+    .hidden-details {
+      display: none;
+    }
+
+    .hidden-section {
+      display: none;
+    }
+
+    .loading-message {
+      padding: 14px;
+      border-radius: 10px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.95rem;
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    .small {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    /* MELHORIAS MOBILE */
+    @media (max-width: 640px) {
+      body {
+        padding: 8px;
+      }
+
+      .header {
+        padding: 16px 12px;
+      }
+
+      .header h1 {
+        font-size: 1.3rem;
+      }
+
+      .content {
+        padding: 12px;
+      }
+
+      .game-card {
+        padding: 14px;
+      }
+
+      .game-title {
+        font-size: 1.15rem;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+      }
+
+      .teimosinha-status {
+        font-size: 0.85rem;
+        padding: 10px;
+      }
+
+      .section-title {
+        font-size: 0.85rem;
+        margin: 14px 0 8px;
+      }
+
+      .num-pill {
+        min-width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+      }
+
+      .prize-item {
+        padding: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .prize-label {
+        font-size: 0.8rem;
+      }
+
+      .prize-value {
+        font-size: 1.2rem;
+      }
+
+      .players-table {
+        font-size: 0.85rem;
+      }
+
+      .players-table th,
+      .players-table td {
+        padding: 10px 6px;
+      }
+
+      .players-table th {
+        font-size: 0.75rem;
+      }
+
+      .players-table td {
+        font-size: 0.9rem;
+      }
+
+      .status-row {
+        font-size: 0.85rem;
+      }
+
+      .status-pill {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+      }
+
+      .btn-show-all {
+        padding: 12px;
+        font-size: 0.95rem;
+      }
+
+      .detail-item {
+        padding: 12px;
+      }
+
+      .loading-message {
+        font-size: 0.9rem;
+        padding: 12px;
+      }
+
+      .small {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* LANDSCAPE MOBILE */
+    @media (max-width: 900px) and (orientation: landscape) {
+      .num-pill {
+        min-width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* TABLET */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .games-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      }
+    }
+
+    /* DESKTOP */
+    @media (min-width: 1025px) {
+      body {
+        padding: 20px;
+      }
+
+      .header {
+        padding: 28px 32px;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .games-grid {
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 24px;
+      }
+
+      .game-card {
+        padding: 20px;
+      }
+
+      .prize-box {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .prize-item {
+        border-bottom: none;
+        border-right: 1px solid #e2e8f0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .prize-item:nth-child(2n) {
+        border-right: none;
+      }
+
+      .prize-item:nth-child(1),
+      .prize-item:nth-child(2) {
+        border-bottom: 1px solid #e2e8f0;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🎰 Lotofácil Teimosinha</h1>
+  </div>
+
+  <div class="content">
+    <div id="loading" class="loading"></div>
+    <div id="gamesContainer" class="games-grid"></div>
+  </div>
+</div>
+
+<script>
+  const JOGOS = [
+    {
+      id: 2,
+      nomeGrupo: "Lotofácil",
+      modalidade: "lotofacil",
+      concursoInicial: 3577,
+      quantidadeTeimosinha: 24,
+      dezenas: ["01","03","04","06","07","08","10","11","12","15","16","19","20","22","23"],
+      jogadores: [
+        { nome: "Reinaldo", cotas: 5 },
+        { nome: "Ricardo",  cotas: 2 },
+        { nome: "Luno",     cotas: 1 },
+        { nome: "Ana",      cotas: 1 },
+        { nome: "Rafael",   cotas: 1 }
+      ]
+    }
+  ];
+
+  const gamesContainer = document.getElementById("gamesContainer");
+  const loadingEl = document.getElementById("loading");
+  const concursosDetalhes = {};
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function formatMoney(v) {
+    return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return "Sem data";
+    
+    try {
+      let data;
+      
+      if (dataStr.includes('-')) {
+        data = new Date(dataStr);
+      } 
+      else if (dataStr.includes('/')) {
+        const partes = dataStr.split('/');
+        data = new Date(partes[2], partes[1] - 1, partes[0]);
+      }
+      else {
+        data = new Date(dataStr);
+      }
+      
+      if (isNaN(data.getTime())) {
+        return dataStr;
+      }
+      
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const ano = data.getFullYear();
+      
+      return `${dia}/${mes}/${ano}`;
+    } catch (e) {
+      console.error('Erro ao formatar data:', e);
+      return dataStr;
+    }
+  }
+
+  async function buscarConcursoAtual(modalidade) {
+    try {
+      const resp = await fetch(`https://api.guidi.dev.br/loteria/${modalidade}/ultimo`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      return data.numero || null;
+    } catch (e) {
+      console.error('Erro ao buscar concurso atual:', e);
+      return null;
+    }
+  }
+
+  function calcularAcertos(dezenasSorteadas, minhasDezenas) {
+    return minhasDezenas.filter(d => dezenasSorteadas.includes(d)).length;
+  }
+
+  function buscarPremioLotoFacil(resultado, acertos) {
+    if (!resultado.listaRateioPremio || acertos < 11 || acertos > 15) {
+      return 0;
+    }
+
+    for (const item of resultado.listaRateioPremio) {
+      const descricao = (item.descricaoFaixa || item.descricao || '').toString().toLowerCase();
+      
+      if (descricao.includes(`${acertos} acerto`)) {
+        return typeof item.valorPremio === "number" ? item.valorPremio : 0;
+      }
+    }
+
+    const faixaMap = { 15: 1, 14: 2, 13: 3, 12: 4, 11: 5 };
+    const faixaEsperada = faixaMap[acertos];
+    
+    if (faixaEsperada) {
+      const itemPorFaixa = resultado.listaRateioPremio.find(item => item.faixa === faixaEsperada);
+      if (itemPorFaixa && typeof itemPorFaixa.valorPremio === "number") {
+        return itemPorFaixa.valorPremio;
+      }
+    }
+
+    const indiceNaLista = 15 - acertos;
+    if (indiceNaLista >= 0 && indiceNaLista < resultado.listaRateioPremio.length) {
+      const itemPorIndice = resultado.listaRateioPremio[indiceNaLista];
+      if (itemPorIndice && typeof itemPorIndice.valorPremio === "number") {
+        return itemPorIndice.valorPremio;
+      }
+    }
+
+    return 0;
+  }
+
+  function buscarPremioGenerico(resultado, acertos, modalidade) {
+    if (!resultado.listaRateioPremio) return 0;
+
+    if (modalidade === "lotofacil") {
+      return buscarPremioLotoFacil(resultado, acertos);
+    }
+
+    const fnFaixa = {
+      megasena: (a) => a === 6 ? 1 : a === 5 ? 2 : a === 4 ? 3 : 0,
+      quina:    (a) => a === 5 ? 1 : a === 4 ? 2 : a === 3 ? 3 : 0
+    }[modalidade];
+
+    if (!fnFaixa) return 0;
+    const faixa = fnFaixa(acertos);
+    if (!faixa) return 0;
+
+    const item = resultado.listaRateioPremio.find(i => i.faixa === faixa);
+    return item && typeof item.valorPremio === "number" ? item.valorPremio : 0;
+  }
+
+  function distribuirPorJogador(premioTotal, jogadores) {
+    const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
+    if (!totalCotas || !premioTotal) {
+      return jogadores.map(j => ({ ...j, valor: 0 }));
+    }
+    const valorPorCota = premioTotal / totalCotas;
+    return jogadores.map(j => ({
+      ...j,
+      valor: valorPorCota * j.cotas
+    }));
+  }
+
+  function criarCardBase(jogo) {
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.id = `game-${jogo.id}`;
+
+    card.innerHTML = `
+      <div class="game-header">
+        <div class="game-title">${jogo.nomeGrupo}</div>
+        <div class="subtitle">
+          Concurso ${jogo.concursoInicial} a ${jogo.concursoInicial + jogo.quantidadeTeimosinha - 1} (${jogo.quantidadeTeimosinha} jogos)
+        </div>
+      </div>
+
+      <div id="teimosinha-status-${jogo.id}" class="teimosinha-status" style="display: none;">
+        Carregando...
+      </div>
+
+      <div class="section-title">Dezenas do Jogo</div>
+      <div class="numbers-row">
+        ${jogo.dezenas.map(d => `<span class="num-pill">${d}</span>`).join("")}
+      </div>
+
+      <div id="summary-section-${jogo.id}" class="hidden-section">
+        <div class="section-title">Resumo Geral</div>
+        <div class="prize-box" id="summary-${jogo.id}">
+          <div class="prize-item">
+            <span class="prize-label">Total de Prêmios</span>
+            <span class="prize-value" data-field="total">R$ 0,00</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Concursos com Prêmio</span>
+            <span class="prize-value" data-field="qtde">0</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Melhor Acerto</span>
+            <span class="prize-value" data-field="melhor">0</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Conferidos</span>
+            <span class="prize-value" data-field="conferidos">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Jogadores e Cotas</div>
+      <table class="players-table" id="players-${jogo.id}">
+        <thead>
+          <tr>
+            <th>Jogador</th>
+            <th style="text-align:center;">Cotas</th>
+            <th style="text-align:right;">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${jogo.jogadores.map(j => `
+            <tr>
+              <td>${j.nome}</td>
+              <td style="text-align:center;">${j.cotas}</td>
+              <td class="amount value-hidden">R$ 0,00</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+
+      <div class="loading-message" id="loading-msg-${jogo.id}">
+        ⏳ Conferindo concursos...
+      </div>
+      
+      <div class="section-title" id="details-title-${jogo.id}" style="display: none;">Último Concurso</div>
+      <div id="details-${jogo.id}"></div>
+      
+      <div id="hidden-details-${jogo.id}" class="hidden-details"></div>
+      
+      <button class="btn-show-all" id="btn-${jogo.id}" onclick="toggleAllConcursos(${jogo.id})" style="display: none;">
+        <span>▼</span> Ver Todos os Concursos
+      </button>
+    `;
+
+    gamesContainer.appendChild(card);
+  }
+
+  function atualizarStatusTeimosinha(jogoId, concursoAtual, jogo, concursosConferidos) {
+    const statusDiv = document.getElementById(`teimosinha-status-${jogoId}`);
+    if (!statusDiv) return;
+
+    const concursoFinal = jogo.concursoInicial + jogo.quantidadeTeimosinha - 1;
+
+    if (concursoAtual === null) {
+      statusDiv.innerHTML = '⚠️ Não foi possível verificar o concurso atual';
+      statusDiv.style.background = '#fee2e2';
+      statusDiv.style.borderColor = '#fca5a5';
+      statusDiv.style.color = '#991b1b';
+      statusDiv.style.display = 'block';
+      return;
+    }
+
+    if (concursoAtual < jogo.concursoInicial) {
+      const faltamIniciar = jogo.concursoInicial - concursoAtual;
+      statusDiv.innerHTML = `
+        ⏸️ <strong>Ainda não iniciou</strong><br>
+        Concurso atual: ${concursoAtual} · Faltam ${faltamIniciar} para iniciar
+      `;
+      statusDiv.style.background = '#fef3c7';
+      statusDiv.style.borderColor = '#fde047';
+      statusDiv.style.color = '#92400e';
+    }
+    else if (concursoAtual > concursoFinal) {
+      statusDiv.innerHTML = `
+        ✅ <strong>Finalizada!</strong><br>
+        Todos os ${jogo.quantidadeTeimosinha} concursos realizados
+      `;
+      statusDiv.style.background = '#f0fdf4';
+      statusDiv.style.borderColor = '#86efac';
+      statusDiv.style.color = '#166534';
+    }
+    else {
+      const posicaoAtual = concursoAtual - jogo.concursoInicial + 1;
+      const faltam = concursoFinal - concursoAtual;
+      
+      statusDiv.innerHTML = `
+        🎯 <strong>Em andamento</strong><br>
+        Concurso atual: ${concursoAtual} · ${posicaoAtual}/${jogo.quantidadeTeimosinha} · Faltam ${faltam}
+      `;
+      statusDiv.style.background = '#dbeafe';
+      statusDiv.style.borderColor = '#93c5fd';
+      statusDiv.style.color = '#1e40af';
+    }
+
+    statusDiv.style.display = 'block';
+  }
+
+  function atualizarResumo(jogoId, resumo) {
+    const summary = document.getElementById(`summary-${jogoId}`);
+    if (!summary) return;
+    
+    const totalEl = summary.querySelector('[data-field="total"]');
+    const qtdePremiosEl = summary.querySelector('[data-field="qtde"]');
+    const melhorAcertosEl = summary.querySelector('[data-field="melhor"]');
+    const conferidosEl = summary.querySelector('[data-field="conferidos"]');
+    
+    if (totalEl) totalEl.textContent = `R$ ${formatMoney(resumo.totalPremios)}`;
+    if (qtdePremiosEl) qtdePremiosEl.textContent = resumo.concursosComPremio;
+    if (melhorAcertosEl) melhorAcertosEl.textContent = resumo.melhorAcerto;
+    if (conferidosEl) conferidosEl.textContent = resumo.concursosConferidos;
+  }
+
+  function atualizarJogadoresTabela(jogoId, jogadoresComValores) {
+    const tbody = document.querySelector(`#players-${jogoId} tbody`);
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    rows.forEach((tr, idx) => {
+      const jogador = jogadoresComValores[idx];
+      if (!jogador) return;
+      const amountCell = tr.querySelector(".amount");
+      amountCell.textContent = `R$ ${formatMoney(jogador.valor)}`;
+    });
+  }
+
+  function mostrarResumoEValores(jogoId) {
+    const summarySection = document.getElementById(`summary-section-${jogoId}`);
+    const loadingMsg = document.getElementById(`loading-msg-${jogoId}`);
+    const detailsTitle = document.getElementById(`details-title-${jogoId}`);
+    const btn = document.getElementById(`btn-${jogoId}`);
+    
+    if (summarySection) summarySection.classList.remove('hidden-section');
+    if (loadingMsg) loadingMsg.style.display = 'none';
+    if (detailsTitle) detailsTitle.style.display = 'block';
+    if (btn) btn.style.display = 'flex';
+
+    const tbody = document.querySelector(`#players-${jogoId} tbody`);
+    if (tbody) {
+      const amountCells = tbody.querySelectorAll('.amount');
+      amountCells.forEach(cell => {
+        cell.classList.remove('value-hidden');
+      });
+    }
+  }
+
+  function criarHTMLDetalhe(detalhe) {
+    const ganhou = detalhe.acertos >= 11 && detalhe.acertos <= 15 && detalhe.premioTotal > 0;
+    
+    return `
+      <div class="status-row">
+        <div><strong>Conc. ${detalhe.numero}</strong> · ${detalhe.acertos} acertos</div>
+        <span class="status-pill ${ganhou ? "win" : ""}">
+          ${ganhou ? "Com Prêmio" : "Sem prêmio"}
+        </span>
+      </div>
+      <div class="numbers-row">
+        ${detalhe.dezenasSorteadas.map(n => `
+          <span class="num-pill ${detalhe.dezenasDoJogo.includes(n) ? "hit" : ""}">
+            ${n}
+          </span>
+        `).join("")}
+      </div>
+      <div class="small">
+        ${detalhe.dataApuracao} · Prêmio: R$ ${formatMoney(detalhe.premioTotal)}
+      </div>
+    `;
+  }
+
+  function adicionarDetalheConcurso(jogoId, detalhe, isUltimo = false) {
+    if (!concursosDetalhes[jogoId]) {
+      concursosDetalhes[jogoId] = [];
+    }
+    concursosDetalhes[jogoId].push(detalhe);
+
+    if (isUltimo) {
+      const details = document.getElementById(`details-${jogoId}`);
+      if (!details) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "detail-item";
+      wrapper.innerHTML = criarHTMLDetalhe(detalhe);
+      details.appendChild(wrapper);
+    }
+  }
+
+  function toggleAllConcursos(jogoId) {
+    const hiddenDetails = document.getElementById(`hidden-details-${jogoId}`);
+    const btn = document.getElementById(`btn-${jogoId}`);
+    const sectionTitle = document.getElementById(`details-title-${jogoId}`);
+
+    if (hiddenDetails.classList.contains('hidden-details')) {
+        hiddenDetails.innerHTML = '';
+        
+        const concursos = concursosDetalhes[jogoId] || [];
+        // CORREÇÃO: Começar do índice 1 (pular o primeiro que já está visível)
+        for (let i = 1; i < concursos.length; i++) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "detail-item";
+        wrapper.innerHTML = criarHTMLDetalhe(concursos[i]);
+        hiddenDetails.appendChild(wrapper);
+        }
+        
+        hiddenDetails.classList.remove('hidden-details');
+        btn.innerHTML = '<span>▲</span> Ocultar Concursos Anteriores';
+        sectionTitle.textContent = 'Todos os Concursos';
+    } else {
+        hiddenDetails.classList.add('hidden-details');
+        hiddenDetails.innerHTML = '';
+        btn.innerHTML = '<span>▼</span> Ver Todos os Concursos';
+        sectionTitle.textContent = 'Último Concurso';
+    }
+  }
+
+
+  async function conferirJogo(jogo) {
+    let totalPremios = 0;
+    let concursosComPremio = 0;
+    let melhorAcerto = 0;
+    let concursosConferidos = 0;
+    const MAX_TENTATIVAS = 3;
+
+    let jogadoresAcumulado = jogo.jogadores.map(j => ({ ...j, valor: 0 }));
+    concursosDetalhes[jogo.id] = [];
+
+    const concursoAtual = await buscarConcursoAtual(jogo.modalidade);
+    
+    const concursoFinal = jogo.concursoInicial + jogo.quantidadeTeimosinha - 1;
+    let ultimoConcursoParaConferir = concursoFinal;
+    
+    if (concursoAtual !== null && concursoAtual < concursoFinal) {
+      ultimoConcursoParaConferir = concursoAtual;
+    }
+
+    if (concursoAtual !== null && concursoAtual < jogo.concursoInicial) {
+      ultimoConcursoParaConferir = jogo.concursoInicial - 1;
+    }
+
+    const quantidadeParaConferir = Math.max(0, ultimoConcursoParaConferir - jogo.concursoInicial + 1);
+
+    atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, 0);
+
+    if (quantidadeParaConferir === 0) {
+      const loadingMsg = document.getElementById(`loading-msg-${jogo.id}`);
+      if (loadingMsg) {
+        loadingMsg.textContent = '⏸️ Nenhum concurso disponível ainda';
+        loadingMsg.style.background = '#fef3c7';
+      }
+      mostrarResumoEValores(jogo.id);
+      return;
+    }
+
+    for (let i = quantidadeParaConferir - 1; i >= 0; i--) {
+      const numeroConcurso = jogo.concursoInicial + i;
+      const isUltimo = (i === quantidadeParaConferir - 1);
+      let sucesso = false;
+
+      for (let tentativa = 0; tentativa < MAX_TENTATIVAS && !sucesso; tentativa++) {
+        try {
+          if (tentativa > 0) {
+            await sleep(2000 * tentativa);
+          }
+
+          const resp = await fetch(`https://api.guidi.dev.br/loteria/${jogo.modalidade}/${numeroConcurso}`);
+          
+          if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status}`);
+          }
+
+          const data = await resp.json();
+
+          if (!data.listaDezenas) {
+            adicionarDetalheConcurso(jogo.id, {
+              numero: numeroConcurso,
+              acertos: 0,
+              premioTotal: 0,
+              dezenasSorteadas: [],
+              dezenasDoJogo: jogo.dezenas,
+              dataApuracao: "Sem dados"
+            }, isUltimo);
+            concursosConferidos++;
+            sucesso = true;
+            continue;
+          }
+
+          const dezenasSorteadas = Array.isArray(data.listaDezenas[0]) ? data.listaDezenas[0] : data.listaDezenas;
+          const acertos = calcularAcertos(dezenasSorteadas, jogo.dezenas);
+          
+          const premioTotalConcurso = buscarPremioGenerico(data, acertos, jogo.modalidade);
+
+          if (acertos > melhorAcerto) melhorAcerto = acertos;
+          
+          if (premioTotalConcurso > 0 && acertos >= 11) {
+            concursosComPremio++;
+          }
+
+          totalPremios += premioTotalConcurso;
+
+          const distrib = distribuirPorJogador(premioTotalConcurso, jogo.jogadores);
+          jogadoresAcumulado = jogadoresAcumulado.map((j, idx) => ({
+            ...j,
+            valor: j.valor + distrib[idx].valor
+          }));
+
+          adicionarDetalheConcurso(jogo.id, {
+            numero: numeroConcurso,
+            acertos,
+            premioTotal: premioTotalConcurso,
+            dezenasSorteadas,
+            dezenasDoJogo: jogo.dezenas,
+            dataApuracao: formatarData(data.dataApuracao)
+          }, isUltimo);
+
+          concursosConferidos++;
+          sucesso = true;
+
+        } catch (e) {
+          if (tentativa === MAX_TENTATIVAS - 1) {
+            const details = document.getElementById(`details-${jogo.id}`);
+            if (details) {
+              const errDiv = document.createElement("div");
+              errDiv.className = "error";
+              errDiv.textContent = `Erro no concurso ${numeroConcurso}: ${e.message}`;
+              details.appendChild(errDiv);
+            }
+          }
+        }
+      }
+
+      const delay = 800 + Math.random() * 400;
+      await sleep(delay);
+    }
+
+    atualizarResumo(jogo.id, { 
+      totalPremios, 
+      concursosComPremio, 
+      melhorAcerto,
+      concursosConferidos 
+    });
+    atualizarJogadoresTabela(jogo.id, jogadoresAcumulado);
+    atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, concursosConferidos);
+    mostrarResumoEValores(jogo.id);
+  }
+
+  async function conferirTodos() {
+    gamesContainer.innerHTML = "";
+    loadingEl.style.display = "block";
+
+    JOGOS.forEach(j => criarCardBase(j));
+
+    for (const jogo of JOGOS) {
+      await conferirJogo(jogo);
+    }
+
+    loadingEl.style.display = "none";
+  }
+
+  window.toggleAllConcursos = toggleAllConcursos;
+
+  window.addEventListener("load", () => {
+    conferirTodos();
+  });
+</script>
+</body>
+</html>
