@@ -1,0 +1,1425 @@
+# Documentação do Projeto: LOT
+Gerado automaticamente pelo Gerador de Conteúdo
+Data: 31/03/2026 16:03:51
+Caminho base: C:\Users\reinaldo.coelho\Downloads\LOT
+
+============================================================
+
+## 📁 LOT/
+
+### 📄 LOT/.gitignore
+```
+/index.html.txt
+icon.png
+
+```
+
+### 📄 LOT/config.js
+```
+/**
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║               LOT — CONFIGURAÇÃO CENTRAL                    ║
+ * ║  Edite este arquivo para atualizar jogos e jogadores.        ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ */
+
+const CONFIG = {
+
+  /* ──────────────────────────────────────────
+     TEIMOSINHA — LOTOFÁCIL
+  ────────────────────────────────────────── */
+  lotofacilTeimosinha: {
+    JOGOS: [
+      {
+        id: 2,
+        nomeGrupo: "Lotofácil",
+        modalidade: "lotofacil",
+        concursoInicial: 3606,
+        quantidadeTeimosinha: 24,
+        dezenas: ["01","03","04","05","07","08","10","12","13","15","17","19","20","23","25"],
+        jogadores: [
+          { nome: "Reinaldo", cotas: 2 },
+          { nome: "Rafael",   cotas: 2 },
+          { nome: "Luno",     cotas: 1 },
+          { nome: "Ana",      cotas: 1 },
+          { nome: "Ricardo",  cotas: 1 },
+          { nome: "Osmar",    cotas: 1 },
+          { nome: "Vinicius", cotas: 1 },
+          { nome: "Herika",   cotas: 1 }
+        ]
+      }
+    ]
+  },
+
+  /* ──────────────────────────────────────────
+     DUPLA DE PÁSCOA 2026
+  ────────────────────────────────────────── */
+  duplaPascoa: {
+
+    // Número do concurso. Deixe null para buscar o último automaticamente.
+    CONCURSO: null,
+
+    // Jogadores e cotas (total = 10)
+    JOGADORES: [
+      { nome: "Reinaldo", cotas: 2 },
+      { nome: "Rafael",   cotas: 2 },
+      { nome: "Luno",     cotas: 1 },
+      { nome: "Ana",      cotas: 1 },
+      { nome: "Ricardo",  cotas: 1 },
+      { nome: "Osmar",    cotas: 1 },
+      { nome: "Vinicius", cotas: 1 },
+      { nome: "Herika",   cotas: 1 }
+    ],
+
+    // Lista de jogos apostados.
+    // Cada jogo tem 6 dezenas (Dupla Sena vai de 01 a 50).
+    // Substitua pelas dezenas reais antes do sorteio!
+    JOGOS: [
+      { id: 1, nome: "Jogo 1", dezenas: ["03","07","12","18","24","30"] },
+      { id: 2, nome: "Jogo 2", dezenas: ["02","09","11","17","22","28"] },
+      { id: 3, nome: "Jogo 3", dezenas: ["05","08","14","20","26","36"] }
+      // Para adicionar mais jogos, copie uma linha acima e incremente o id.
+    ]
+  }
+
+};
+```
+
+### 📄 LOT/dupla-pascoa.html
+```
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lot - Dupla de Páscoa 2026</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <style>
+    /* ─── Apenas as cores mudam em relação à teimosinha ─── */
+    :root {
+      --color1: #6b21a8;
+      --color2: #7e22ce;
+      --color3: #9333ea;
+      --color4: #a855f7;
+      --color5: #c084fc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #e9d5ff);
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .container {
+      max-width: 1200px; margin: 0 auto;
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(107,33,168,0.15); overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--color1), var(--color3));
+      color: #fff; padding: 20px 16px; text-align: center; position: relative;
+    }
+    .btn-back {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.18); color: #fff; text-decoration: none;
+      border-radius: 8px; padding: 7px 12px; font-size: 0.82rem;
+      font-weight: 700; white-space: nowrap;
+    }
+    .btn-back:active { background: rgba(255,255,255,0.32); }
+    .header h1 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+    .header .header-sub { margin-top: 5px; font-size: 0.85rem; opacity: 0.85; }
+
+    /* ── Layout ── */
+    .content    { padding: 16px; }
+    .games-grid { display: grid; gap: 16px; }
+
+    /* ── Card ── */
+    .game-card {
+      border-radius: 12px; padding: 16px;
+      border-left: 4px solid var(--color1);
+      box-shadow: 0 4px 12px rgba(107,33,168,0.1); background: #fff;
+    }
+    .game-header { margin-bottom: 12px; }
+    .game-title  { font-weight: 700; font-size: 1.25rem; color: var(--color1); margin-bottom: 6px; }
+    .subtitle    { font-size: 0.875rem; color: #666; line-height: 1.4; }
+
+    /* ── Status do sorteio (mesmo papel que teimosinha-status) ── */
+    .sorteio-status {
+      margin: 12px 0; padding: 12px; border-radius: 10px;
+      background: #fef3c7; border: 2px solid #fde047;
+      font-size: 0.9rem; line-height: 1.5; color: #92400e;
+    }
+    .sorteio-status strong { font-weight: 700; }
+    .sorteio-status.realizado { background: #f5f3ff; border-color: var(--color4); color: var(--color1); }
+    .sorteio-status.erro      { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+
+    /* ── Títulos de seção ── */
+    .section-title {
+      font-size: 0.95rem; font-weight: 700; color: #333;
+      margin: 16px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ── Dezenas ── */
+    .numbers-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .num-pill {
+      min-width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; color: #333;
+      background: linear-gradient(135deg, #ffeda6, #fff59a);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .num-pill.hit {
+      background: linear-gradient(135deg, var(--color4), var(--color3));
+      color: #fff; box-shadow: 0 3px 8px rgba(107,33,168,0.4);
+    }
+
+    /* ── Prize box ── */
+    .prize-box {
+      margin-top: 12px; border-radius: 12px;
+      background: #f8fafc; border: 2px solid #e2e8f0; overflow: hidden;
+    }
+    .prize-item {
+      padding: 14px; border-bottom: 1px solid #e2e8f0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .prize-item:last-child { border-bottom: none; }
+    .prize-label { color: #64748b; font-size: 0.875rem; font-weight: 600; }
+    .prize-value { font-weight: 700; color: var(--color1); font-size: 1.1rem; }
+    .prize-value.gold { color: #d97706; font-size: 1.15rem; }
+
+    /* ── Tabela jogadores ── */
+    .players-table { margin-top: 12px; width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .players-table th,
+    .players-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .players-table th {
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      font-weight: 700; color: var(--color1); font-size: 0.85rem;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .players-table td { font-size: 0.95rem; }
+    .players-table td.amount { font-weight: 700; color: var(--color2); text-align: right; }
+    .value-hidden { visibility: hidden; }
+
+    /* ── Detalhe de sorteio (mesmo que detail-item da teimosinha) ── */
+    .detail-item {
+      margin-top: 16px; padding: 14px; background: #f9fafb;
+      border-radius: 10px; border-left: 3px solid var(--color3);
+    }
+    .status-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; gap: 8px; flex-wrap: wrap; font-size: 0.9rem;
+    }
+    .status-row strong { color: var(--color1); }
+    .status-pill {
+      padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;
+      font-weight: 700; background: #fee2e2; color: #b91c1c; white-space: nowrap;
+    }
+    .status-pill.win { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: var(--color1); }
+
+    /* ── Auxiliares ── */
+    .loading { text-align: center; padding: 20px; font-size: 1rem; color: #555; }
+    .error {
+      margin-top: 12px; padding: 12px; border-radius: 10px; font-size: 0.875rem;
+      background: #fee2e2; color: #991b1b; border-left: 4px solid #dc2626;
+    }
+    .hidden-section  { display: none; }
+    .loading-message {
+      padding: 14px; border-radius: 10px; background: #fef3c7; color: #92400e;
+      font-size: 0.95rem; text-align: center; margin-top: 12px; font-weight: 600;
+    }
+    .small { font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.4; }
+
+    /* ─── Card de resumo global ─── */
+    .global-card {
+      border-radius: 12px; padding: 16px;
+      border-left: 4px solid #d97706;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    }
+    .global-title {
+      font-weight: 700; font-size: 1.1rem; color: #92400e; margin-bottom: 12px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      body { padding: 8px; }
+      .header { padding: 16px 12px; }
+      .header h1 { font-size: 1.3rem; }
+      .btn-back { font-size: 0.75rem; padding: 5px 9px; }
+      .content { padding: 12px; }
+      .game-card { padding: 14px; }
+      .game-title { font-size: 1.15rem; }
+      .subtitle { font-size: 0.8rem; }
+      .sorteio-status { font-size: 0.85rem; padding: 10px; }
+      .section-title { font-size: 0.85rem; margin: 14px 0 8px; }
+      .num-pill { min-width: 36px; height: 36px; font-size: 0.9rem; }
+      .prize-item { padding: 12px; flex-direction: column; align-items: flex-start; gap: 4px; }
+      .prize-label { font-size: 0.8rem; }
+      .prize-value { font-size: 1.2rem; }
+      .players-table { font-size: 0.85rem; }
+      .players-table th, .players-table td { padding: 10px 6px; }
+      .players-table th { font-size: 0.75rem; }
+      .players-table td { font-size: 0.9rem; }
+      .status-row { font-size: 0.85rem; }
+      .status-pill { font-size: 0.75rem; padding: 5px 10px; }
+      .detail-item { padding: 12px; }
+      .loading-message { font-size: 0.9rem; padding: 12px; }
+      .small { font-size: 0.8rem; }
+    }
+
+    /* ── Landscape mobile ── */
+    @media (max-width: 900px) and (orientation: landscape) {
+      .num-pill { min-width: 32px; height: 32px; font-size: 0.85rem; }
+    }
+
+    /* ── Tablet ── */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .games-grid { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+    }
+
+    /* ── Desktop ── */
+    @media (min-width: 1025px) {
+      body { padding: 20px; }
+      .header { padding: 28px 32px; }
+      .header h1 { font-size: 2rem; }
+      .content { padding: 24px; }
+      .games-grid { grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; }
+      .game-card { padding: 20px; }
+      .prize-box { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .prize-item { border-bottom: none; border-right: 1px solid #e2e8f0; flex-direction: column; align-items: flex-start; gap: 6px; }
+      .prize-item:nth-child(2n) { border-right: none; }
+      .prize-item:nth-child(1), .prize-item:nth-child(2) { border-bottom: 1px solid #e2e8f0; }
+      .global-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <a class="btn-back" href="index.html">← Início</a>
+    <h1>Dupla de Páscoa 2026</h1>
+  </div>
+  <div class="content">
+    <div id="loading" class="loading"></div>
+    <div id="gamesContainer" class="games-grid"></div>
+  </div>
+</div>
+
+<!-- Carrega a configuração central antes da lógica -->
+<script src="config.js"></script>
+<script>
+  // Lê os dados do config central
+  const CONCURSO_PASCOA = CONFIG.duplaPascoa.CONCURSO;
+  const JOGADORES       = CONFIG.duplaPascoa.JOGADORES;
+  const JOGOS           = CONFIG.duplaPascoa.JOGOS;
+
+  const gamesContainer = document.getElementById("gamesContainer");
+  const loadingEl      = document.getElementById("loading");
+
+  // ── Utilitários ──
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function formatMoney(v) {
+    return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return "Sem data";
+    try {
+      let d;
+      if (dataStr.includes('-')) d = new Date(dataStr);
+      else if (dataStr.includes('/')) { const p = dataStr.split('/'); d = new Date(p[2], p[1]-1, p[0]); }
+      else d = new Date(dataStr);
+      if (isNaN(d.getTime())) return dataStr;
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    } catch(e) { return dataStr; }
+  }
+
+  function calcularAcertos(dezenasSorteadas, minhasDezenas) {
+    return minhasDezenas.filter(d => dezenasSorteadas.includes(d)).length;
+  }
+
+  // Faixas Dupla Sena:  1–4 = 1º sorteio (sena/quina/quadra/terno),  5–8 = 2º sorteio
+  function buscarPremioDuplaSena(resultado, acertos, sorteio) {
+    if (!resultado.listaRateioPremio || acertos < 3) return 0;
+    const faixasMap = {
+      1: { 6:1, 5:2, 4:3, 3:4 },
+      2: { 6:5, 5:6, 4:7, 3:8 }
+    };
+    const faixa = faixasMap[sorteio][acertos];
+    if (!faixa) return 0;
+
+    // Por número de faixa
+    const it = resultado.listaRateioPremio.find(i => i.faixa === faixa);
+    if (it && typeof it.valorPremio === "number") return it.valorPremio;
+
+    // Fallback por descrição
+    const labelAcertos = { 6:"sena", 5:"quina", 4:"quadra", 3:"terno" }[acertos] || "";
+    for (const item of resultado.listaRateioPremio) {
+      const desc = (item.descricaoFaixa || item.descricao || "").toLowerCase();
+      if (desc.includes(labelAcertos) && desc.includes(String(sorteio))) {
+        return typeof item.valorPremio === "number" ? item.valorPremio : 0;
+      }
+    }
+    return 0;
+  }
+
+  function distribuirPorJogador(premioTotal) {
+    const totalCotas = JOGADORES.reduce((s, j) => s + j.cotas, 0);
+    if (!totalCotas || !premioTotal) return JOGADORES.map(j => ({ ...j, valor: 0 }));
+    const porCota = premioTotal / totalCotas;
+    return JOGADORES.map(j => ({ ...j, valor: porCota * j.cotas }));
+  }
+
+  // ── Cria card de jogo (mesma estrutura que teimosinha) ──
+
+  function criarCardBase(jogo) {
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.id = `game-${jogo.id}`;
+    card.innerHTML = `
+      <div class="game-header">
+        <div class="game-title">🥚 ${jogo.nome}</div>
+        <div class="subtitle">Dupla Sena · ${jogo.dezenas.length} dezenas apostadas</div>
+      </div>
+
+      <div id="sorteio-status-${jogo.id}" class="sorteio-status">
+        ⏳ Carregando...
+      </div>
+
+      <div class="section-title">Dezenas do Jogo</div>
+      <div class="numbers-row" id="dezenas-${jogo.id}">
+        ${jogo.dezenas.map(d => `<span class="num-pill">${d}</span>`).join("")}
+      </div>
+
+      <div id="summary-section-${jogo.id}" class="hidden-section">
+        <div class="section-title">Resumo do Jogo</div>
+        <div class="prize-box" id="summary-${jogo.id}">
+          <div class="prize-item">
+            <span class="prize-label">Total de Prêmios</span>
+            <span class="prize-value gold" data-field="total">R$ 0,00</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">1º Sorteio</span>
+            <span class="prize-value" data-field="prize1">R$ 0,00</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">2º Sorteio</span>
+            <span class="prize-value" data-field="prize2">R$ 0,00</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Melhor Acerto</span>
+            <span class="prize-value" data-field="melhor">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Jogadores e Cotas</div>
+      <table class="players-table" id="players-${jogo.id}">
+        <thead>
+          <tr>
+            <th>Jogador</th>
+            <th style="text-align:center;">Cotas</th>
+            <th style="text-align:right;">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${JOGADORES.map(j => `
+            <tr>
+              <td>${j.nome}</td>
+              <td style="text-align:center;">${j.cotas}</td>
+              <td class="amount value-hidden">R$ 0,00</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+
+      <div class="loading-message" id="loading-msg-${jogo.id}">
+        ⏳ Aguardando dados do sorteio...
+      </div>
+
+      <div class="section-title" id="details-title-${jogo.id}" style="display:none;">Resultado do Sorteio</div>
+      <div id="details-${jogo.id}"></div>
+    `;
+    gamesContainer.appendChild(card);
+  }
+
+  // ── HTML de detalhe por sorteio (mesma estrutura que criarHTMLDetalhe da teimosinha) ──
+
+  function criarHTMLDetalheSorteio(numSorteio, dezenasSorteadas, acertos, premio, dezenasDoJogo) {
+    const ganhou = premio > 0 && acertos >= 3;
+    return `
+      <div class="status-row">
+        <div><strong>${numSorteio}º Sorteio</strong> · Acertos: <strong>${acertos}</strong></div>
+        <span class="status-pill ${ganhou ? "win" : ""}">
+          ${ganhou ? "Teve prêmio" : "Sem prêmio"}
+        </span>
+      </div>
+      <div class="numbers-row">
+        ${dezenasSorteadas.map(n => `
+          <span class="num-pill ${dezenasDoJogo.includes(n) ? "hit" : ""}">${n}</span>
+        `).join("")}
+      </div>
+      <div class="small">Prêmio deste sorteio: R$ ${formatMoney(premio)}</div>
+    `;
+  }
+
+  // ── Renderiza resultado de um jogo ──
+
+  function renderizarResultadoJogo(jogo, draw1, draw2, prize1, prize2) {
+    const totalJogo  = prize1 + prize2;
+    const acertos1   = calcularAcertos(draw1, jogo.dezenas);
+    const acertos2   = calcularAcertos(draw2, jogo.dezenas);
+    const melhor     = Math.max(acertos1, acertos2);
+
+    // Atualiza dezenas com highlights
+    const dezenasEl = document.getElementById(`dezenas-${jogo.id}`);
+    if (dezenasEl) {
+      dezenasEl.innerHTML = jogo.dezenas.map(d => {
+        const hit = draw1.includes(d) || draw2.includes(d);
+        return `<span class="num-pill ${hit ? "hit" : ""}">${d}</span>`;
+      }).join("");
+    }
+
+    // Resumo
+    const summary = document.getElementById(`summary-${jogo.id}`);
+    if (summary) {
+      summary.querySelector('[data-field="total"]').textContent  = `R$ ${formatMoney(totalJogo)}`;
+      summary.querySelector('[data-field="prize1"]').textContent = `R$ ${formatMoney(prize1)}`;
+      summary.querySelector('[data-field="prize2"]').textContent = `R$ ${formatMoney(prize2)}`;
+      summary.querySelector('[data-field="melhor"]').textContent = melhor;
+    }
+
+    // Jogadores
+    const distrib = distribuirPorJogador(totalJogo);
+    const rows    = Array.from(document.querySelectorAll(`#players-${jogo.id} tbody tr`));
+    rows.forEach((tr, idx) => {
+      const cell = tr.querySelector(".amount");
+      cell.textContent = `R$ ${formatMoney(distrib[idx].valor)}`;
+      cell.classList.remove("value-hidden");
+    });
+
+    // Detalhes dos 2 sorteios (como na teimosinha)
+    const detailsEl = document.getElementById(`details-${jogo.id}`);
+    if (detailsEl) {
+      [
+        { n: 1, draw: draw1, prize: prize1, acertos: acertos1 },
+        { n: 2, draw: draw2, prize: prize2, acertos: acertos2 }
+      ].forEach(({ n, draw, prize, acertos }) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "detail-item";
+        wrapper.innerHTML = criarHTMLDetalheSorteio(n, draw, acertos, prize, jogo.dezenas);
+        detailsEl.appendChild(wrapper);
+      });
+    }
+
+    // Exibe seções
+    document.getElementById(`summary-section-${jogo.id}`)?.classList.remove("hidden-section");
+    const loadingMsg = document.getElementById(`loading-msg-${jogo.id}`);
+    if (loadingMsg) loadingMsg.style.display = "none";
+    const detailsTitle = document.getElementById(`details-title-${jogo.id}`);
+    if (detailsTitle) detailsTitle.style.display = "block";
+  }
+
+  // ── Status do sorteio por card ──
+
+  function setStatusCard(jogoId, tipo, texto) {
+    const el = document.getElementById(`sorteio-status-${jogoId}`);
+    if (!el) return;
+    el.className = `sorteio-status${tipo === "realizado" ? " realizado" : tipo === "erro" ? " erro" : ""}`;
+    el.innerHTML = texto;
+  }
+
+  // ── Card de resumo global ──
+
+  function criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal) {
+    const card = document.createElement("div");
+    card.className = "global-card";
+    card.innerHTML = `
+      <div class="global-title">🏆 Resumo Geral — Todos os Jogos</div>
+
+      <div class="prize-box" style="margin-top:0;">
+        <div class="prize-item">
+          <span class="prize-label">Total de Prêmios</span>
+          <span class="prize-value gold">R$ ${formatMoney(totalGeral)}</span>
+        </div>
+        <div class="prize-item">
+          <span class="prize-label">Jogos com Prêmio</span>
+          <span class="prize-value">${jogosComPremio} de ${JOGOS.length}</span>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:16px;">Valor Total por Jogador</div>
+      <table class="players-table">
+        <thead>
+          <tr>
+            <th>Jogador</th>
+            <th style="text-align:center;">Cotas</th>
+            <th style="text-align:right;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${distribGlobal.map(j => `
+            <tr>
+              <td>${j.nome}</td>
+              <td style="text-align:center;">${j.cotas}</td>
+              <td class="amount">R$ ${formatMoney(j.valor)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    gamesContainer.appendChild(card);
+  }
+
+  // ── Busca dados do concurso ──
+
+  async function buscarDadosConcurso() {
+    const url = CONCURSO_PASCOA
+      ? `https://api.guidi.dev.br/loteria/duplasena/${CONCURSO_PASCOA}`
+      : `https://api.guidi.dev.br/loteria/duplasena/ultimo`;
+    for (let t = 0; t < 3; t++) {
+      try {
+        if (t > 0) await sleep(2000 * t);
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+      } catch(e) { if (t === 2) throw e; }
+    }
+  }
+
+  // ── Fluxo principal ──
+
+  async function conferirTodos() {
+    loadingEl.style.display = "block";
+    JOGOS.forEach(j => criarCardBase(j));
+
+    let dados = null;
+    try {
+      dados = await buscarDadosConcurso();
+    } catch(e) {
+      JOGOS.forEach(j => {
+        setStatusCard(j.id, "erro", `⚠️ Erro ao buscar dados: ${e.message}`);
+        const msg = document.getElementById(`loading-msg-${j.id}`);
+        if (msg) { msg.textContent = "⚠️ Não foi possível obter os dados do sorteio"; msg.style.background = "#fee2e2"; msg.style.color = "#991b1b"; }
+      });
+      loadingEl.style.display = "none";
+      return;
+    }
+
+    loadingEl.style.display = "none";
+
+    // Verifica se o sorteio já foi realizado (Dupla Sena tem 2 sorteios = listaDezenas com 2 arrays)
+    const listaOk = dados.listaDezenas && Array.isArray(dados.listaDezenas) && dados.listaDezenas.length >= 2;
+
+    if (!listaOk) {
+      const concurso = dados.numero || CONCURSO_PASCOA || "—";
+      const data     = dados.dataApuracao ? formatarData(dados.dataApuracao) : null;
+      JOGOS.forEach(j => {
+        setStatusCard(j.id, "aguardando",
+          `⏸️ <strong>Aguardando sorteio</strong> · Concurso ${concurso}${data ? ` · Previsto: ${data}` : ""}`);
+        const msg = document.getElementById(`loading-msg-${j.id}`);
+        if (msg) msg.textContent = "⏸️ Sorteio ainda não realizado. Volte após o sorteio!";
+      });
+      return;
+    }
+
+    // Extrai os 2 sorteios
+    const draw1 = Array.isArray(dados.listaDezenas[0])
+      ? dados.listaDezenas[0]
+      : dados.listaDezenas.slice(0, 6);
+    const draw2 = Array.isArray(dados.listaDezenas[1])
+      ? dados.listaDezenas[1]
+      : dados.listaDezenas.slice(6, 12);
+
+    const concurso = dados.numero || "—";
+    const dataStr  = formatarData(dados.dataApuracao);
+
+    // Calcula e renderiza cada jogo
+    let totalGeral    = 0;
+    let jogosComPremio = 0;
+    let distribGlobal  = JOGADORES.map(j => ({ ...j, valor: 0 }));
+
+    for (const jogo of JOGOS) {
+      const prize1 = buscarPremioDuplaSena(dados, calcularAcertos(draw1, jogo.dezenas), 1);
+      const prize2 = buscarPremioDuplaSena(dados, calcularAcertos(draw2, jogo.dezenas), 2);
+      const total  = prize1 + prize2;
+
+      if (total > 0) jogosComPremio++;
+      totalGeral += total;
+
+      const distrib = distribuirPorJogador(total);
+      distribGlobal = distribGlobal.map((g, i) => ({ ...g, valor: g.valor + distrib[i].valor }));
+
+      setStatusCard(jogo.id, "realizado",
+        `✅ <strong>Sorteio realizado!</strong> · Concurso ${concurso} · Data: ${dataStr}`);
+
+      renderizarResultadoJogo(jogo, draw1, draw2, prize1, prize2);
+    }
+
+    criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal);
+  }
+
+  window.addEventListener("load", () => conferirTodos());
+</script>
+</body>
+</html>
+```
+
+### 📄 LOT/icon.ico
+```
+[Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x80 in position 6: invalid start byte]
+```
+
+### 📄 LOT/icon.png
+```
+[Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte]
+```
+
+### 📄 LOT/index.html
+```
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>LOT – Loterias</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      min-height: 100vh;
+      padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%; max-width: 680px;
+      background: #fff; border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #03750e, #40a63e);
+      color: #fff; padding: 28px 20px 24px; text-align: center;
+    }
+    .header-icon {
+      width: 52px; height: 52px; background: rgba(255,255,255,0.2);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 12px; font-size: 1.8rem;
+    }
+    .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: 1px; }
+    .header p  { margin-top: 6px; font-size: 0.9rem; opacity: 0.85; }
+
+    .content { padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #94a3b8; margin-bottom: 4px;
+    }
+
+    .lottery-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px 20px; border-radius: 14px;
+      border: 2px solid transparent; text-decoration: none; color: inherit;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; cursor: pointer;
+    }
+    .lottery-card:active { transform: scale(0.98); }
+
+    /* Verde – Teimosinha */
+    .card-teimosinha { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #86efac; }
+    .card-teimosinha:hover { border-color: #22c55e; box-shadow: 0 6px 20px rgba(34,197,94,0.2); transform: translateY(-2px); }
+    .card-teimosinha .card-icon  { background: linear-gradient(135deg, #03750e, #40a63e); }
+    .card-teimosinha .card-title { color: #166534; }
+    .card-teimosinha .card-arrow { color: #22c55e; }
+
+    /* Roxo – Dupla de Páscoa */
+    .card-pascoa { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-color: #d8b4fe; }
+    .card-pascoa:hover { border-color: #a855f7; box-shadow: 0 6px 20px rgba(168,85,247,0.2); transform: translateY(-2px); }
+    .card-pascoa .card-icon  { background: linear-gradient(135deg, #6b21a8, #a855f7); }
+    .card-pascoa .card-title { color: #581c87; }
+    .card-pascoa .card-arrow { color: #a855f7; }
+
+    .card-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .card-body { flex: 1; min-width: 0; }
+    .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 3px; }
+    .card-desc  { font-size: 0.82rem; color: #64748b; line-height: 1.4; }
+    .card-badge {
+      display: inline-block; margin-top: 6px; padding: 3px 9px;
+      border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-new   { background: linear-gradient(135deg, #fef9c3, #fde047); color: #854d0e; }
+    .card-arrow  { font-size: 1.4rem; flex-shrink: 0; transition: transform 0.2s; }
+    .lottery-card:hover .card-arrow { transform: translateX(4px); }
+
+    .footer {
+      text-align: center; padding: 16px; font-size: 0.78rem;
+      color: #94a3b8; border-top: 1px solid #f1f5f9;
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 1.6rem; }
+      .content { padding: 16px 14px; }
+      .lottery-card { padding: 15px 14px; }
+      .card-icon { width: 44px; height: 44px; font-size: 1.3rem; border-radius: 11px; }
+      .card-title { font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-icon">🍀</div>
+      <h1>LOT</h1>
+      <p>Acompanhe seus jogos de loteria</p>
+    </div>
+
+    <div class="content">
+      <div class="section-label">Jogos ativos</div>
+
+      <a class="lottery-card card-teimosinha" href="lotofacil-teimosinha.html">
+        <div class="card-body">
+          <div class="card-title">Teimosinha — Lotofácil</div>
+          <div class="card-desc">Acompanhamento da teimosinha em andamento · 10 cotas</div>
+          <span class="card-badge badge-green">Em andamento</span>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
+
+      <a class="lottery-card card-pascoa" href="dupla-pascoa.html">
+        <div class="card-body">
+          <div class="card-title">Dupla de Páscoa 2026</div>
+          <div class="card-desc">Sorteio especial de abril · Vários jogos · 10 cotas</div>
+          <span class="card-badge badge-new">🥚 Novo</span>
+        </div>
+        <div class="card-arrow">›</div>
+      </a>
+    </div>
+
+    <div class="footer">LOT · Projeto pessoal de acompanhamento de loterias</div>
+  </div>
+</body>
+</html>
+```
+
+### 📄 LOT/lotofacil-teimosinha.html
+```
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lot - Teimosinha</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <style>
+    :root {
+      --color1: #03750e;
+      --color2: #218e26;
+      --color3: #40a63e;
+      --color4: #5ebf55;
+      --color5: #7cd76d;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .container {
+      max-width: 1200px; margin: 0 auto;
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--color1), var(--color3));
+      color: #fff; padding: 20px 16px; text-align: center; position: relative;
+    }
+    .btn-back {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.18); color: #fff; text-decoration: none;
+      border-radius: 8px; padding: 7px 12px; font-size: 0.82rem;
+      font-weight: 700; white-space: nowrap;
+    }
+    .btn-back:active { background: rgba(255,255,255,0.32); }
+    .header h1 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+    .header h1 img { width: 32px; height: 32px; vertical-align: middle; margin-right: 8px; }
+
+    /* ── Layout ── */
+    .content  { padding: 16px; }
+    .games-grid { display: grid; gap: 16px; }
+
+    /* ── Card ── */
+    .game-card {
+      border-radius: 12px; padding: 16px;
+      border-left: 4px solid var(--color1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: #fff;
+    }
+    .game-header { margin-bottom: 12px; }
+    .game-title  { font-weight: 700; font-size: 1.25rem; color: var(--color1); margin-bottom: 6px; }
+    .subtitle    { font-size: 0.875rem; color: #666; line-height: 1.4; }
+
+    /* ── Status teimosinha ── */
+    .teimosinha-status {
+      margin: 12px 0; padding: 12px; border-radius: 10px;
+      background: #f0fdf4; border: 2px solid #86efac;
+      font-size: 0.9rem; line-height: 1.5; color: #166534;
+    }
+    .teimosinha-status strong { color: var(--color1); font-weight: 700; }
+
+    /* ── Títulos de seção ── */
+    .section-title {
+      font-size: 0.95rem; font-weight: 700; color: #333;
+      margin: 16px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    /* ── Dezenas ── */
+    .numbers-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .num-pill {
+      min-width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; color: #333;
+      background: linear-gradient(135deg, #ffeda6, #fff59a);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .num-pill.hit {
+      background: linear-gradient(135deg, var(--color4), var(--color3));
+      color: #fff; box-shadow: 0 3px 8px rgba(3,117,14,0.4);
+    }
+
+    /* ── Prize box ── */
+    .prize-box {
+      margin-top: 12px; padding: 0; border-radius: 12px;
+      background: #f8fafc; border: 2px solid #e2e8f0; overflow: hidden;
+    }
+    .prize-item {
+      padding: 14px; border-bottom: 1px solid #e2e8f0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .prize-item:last-child { border-bottom: none; }
+    .prize-label { color: #64748b; font-size: 0.875rem; font-weight: 600; }
+    .prize-value { font-weight: 700; color: var(--color1); font-size: 1.1rem; }
+
+    /* ── Tabela jogadores ── */
+    .players-table { margin-top: 12px; width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .players-table th,
+    .players-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .players-table th {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      font-weight: 700; color: #333; font-size: 0.85rem;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .players-table td { font-size: 0.95rem; }
+    .players-table td.amount { font-weight: 700; color: var(--color2); text-align: right; }
+    .value-hidden { visibility: hidden; }
+
+    /* ── Detalhe concurso ── */
+    .detail-item {
+      margin-top: 16px; padding: 14px; background: #f9fafb;
+      border-radius: 10px; border-left: 3px solid var(--color3);
+    }
+    .status-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; gap: 8px; flex-wrap: wrap; font-size: 0.9rem;
+    }
+    .status-row strong { color: var(--color1); }
+    .status-pill {
+      padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;
+      font-weight: 700; background: #fee2e2; color: #b91c1c; white-space: nowrap;
+    }
+    .status-pill.win { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #166534; }
+
+    /* ── Auxiliares ── */
+    .loading { text-align: center; padding: 20px; font-size: 1rem; color: #555; }
+    .error {
+      margin-top: 12px; padding: 12px; border-radius: 10px; font-size: 0.875rem;
+      background: #fee2e2; color: #991b1b; border-left: 4px solid #dc2626;
+    }
+    .btn-show-all {
+      margin-top: 16px; padding: 14px;
+      background: linear-gradient(135deg, var(--color2), var(--color3));
+      color: #fff; border: none; border-radius: 12px; font-size: 1rem;
+      font-weight: 700; cursor: pointer; width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 12px rgba(3,117,14,0.3);
+      transition: all 0.3s ease; touch-action: manipulation;
+    }
+    .btn-show-all:active { transform: scale(0.98); }
+    .hidden-details { display: none; }
+    .hidden-section  { display: none; }
+    .loading-message {
+      padding: 14px; border-radius: 10px; background: #fef3c7; color: #92400e;
+      font-size: 0.95rem; text-align: center; margin-top: 12px; font-weight: 600;
+    }
+    .small { font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.4; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      body { padding: 8px; }
+      .header { padding: 16px 12px; }
+      .header h1 { font-size: 1.3rem; }
+      .header h1 img { width: 28px; height: 28px; margin-right: 6px; }
+      .btn-back { font-size: 0.75rem; padding: 5px 9px; }
+      .content { padding: 12px; }
+      .game-card { padding: 14px; }
+      .game-title { font-size: 1.15rem; }
+      .subtitle { font-size: 0.8rem; }
+      .teimosinha-status { font-size: 0.85rem; padding: 10px; }
+      .section-title { font-size: 0.85rem; margin: 14px 0 8px; }
+      .num-pill { min-width: 36px; height: 36px; font-size: 0.9rem; }
+      .prize-item { padding: 12px; flex-direction: column; align-items: flex-start; gap: 4px; }
+      .prize-label { font-size: 0.8rem; }
+      .prize-value { font-size: 1.2rem; }
+      .players-table { font-size: 0.85rem; }
+      .players-table th, .players-table td { padding: 10px 6px; }
+      .players-table th { font-size: 0.75rem; }
+      .players-table td { font-size: 0.9rem; }
+      .status-row { font-size: 0.85rem; }
+      .status-pill { font-size: 0.75rem; padding: 5px 10px; }
+      .btn-show-all { padding: 12px; font-size: 0.95rem; }
+      .detail-item { padding: 12px; }
+      .loading-message { font-size: 0.9rem; padding: 12px; }
+      .small { font-size: 0.8rem; }
+    }
+
+    /* ── Landscape mobile ── */
+    @media (max-width: 900px) and (orientation: landscape) {
+      .num-pill { min-width: 32px; height: 32px; font-size: 0.85rem; }
+    }
+
+    /* ── Tablet ── */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .games-grid { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+    }
+
+    /* ── Desktop ── */
+    @media (min-width: 1025px) {
+      body { padding: 20px; }
+      .header { padding: 28px 32px; }
+      .header h1 { font-size: 2rem; }
+      .content { padding: 24px; }
+      .games-grid { grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; }
+      .game-card { padding: 20px; }
+      .prize-box { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .prize-item { border-bottom: none; border-right: 1px solid #e2e8f0; flex-direction: column; align-items: flex-start; gap: 6px; }
+      .prize-item:nth-child(2n) { border-right: none; }
+      .prize-item:nth-child(1), .prize-item:nth-child(2) { border-bottom: 1px solid #e2e8f0; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <a class="btn-back" href="index.html">← Início</a>
+    <h1><img src="icon.ico" alt="Ícone">Lot Teimosinha</h1>
+  </div>
+  <div class="content">
+    <div id="loading" class="loading"></div>
+    <div id="gamesContainer" class="games-grid"></div>
+  </div>
+</div>
+
+<!-- Carrega a configuração central antes da lógica -->
+<script src="config.js"></script>
+<script>
+  // Lê os dados do config central
+  const JOGOS = CONFIG.lotofacilTeimosinha.JOGOS;
+
+  const gamesContainer = document.getElementById("gamesContainer");
+  const loadingEl      = document.getElementById("loading");
+  const concursosDetalhes = {};
+
+  // ── Utilitários ──
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function formatMoney(v) {
+    return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return "Sem data";
+    try {
+      let d;
+      if (dataStr.includes('-')) d = new Date(dataStr);
+      else if (dataStr.includes('/')) {
+        const p = dataStr.split('/');
+        d = new Date(p[2], p[1] - 1, p[0]);
+      } else d = new Date(dataStr);
+      if (isNaN(d.getTime())) return dataStr;
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    } catch(e) { return dataStr; }
+  }
+
+  async function buscarConcursoAtual(modalidade) {
+    try {
+      const resp = await fetch(`https://api.guidi.dev.br/loteria/${modalidade}/ultimo`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      return data.numero || null;
+    } catch(e) { console.error('Erro ao buscar concurso atual:', e); return null; }
+  }
+
+  function calcularAcertos(dezenasSorteadas, minhasDezenas) {
+    return minhasDezenas.filter(d => dezenasSorteadas.includes(d)).length;
+  }
+
+  function buscarPremioLotoFacil(resultado, acertos) {
+    if (!resultado.listaRateioPremio || acertos < 11 || acertos > 15) return 0;
+    for (const item of resultado.listaRateioPremio) {
+      const desc = (item.descricaoFaixa || item.descricao || '').toString().toLowerCase();
+      if (desc.includes(`${acertos} acerto`)) return typeof item.valorPremio === "number" ? item.valorPremio : 0;
+    }
+    const faixaMap = { 15:1, 14:2, 13:3, 12:4, 11:5 };
+    const faixaEsperada = faixaMap[acertos];
+    if (faixaEsperada) {
+      const it = resultado.listaRateioPremio.find(i => i.faixa === faixaEsperada);
+      if (it && typeof it.valorPremio === "number") return it.valorPremio;
+    }
+    const idx = 15 - acertos;
+    if (idx >= 0 && idx < resultado.listaRateioPremio.length) {
+      const it = resultado.listaRateioPremio[idx];
+      if (it && typeof it.valorPremio === "number") return it.valorPremio;
+    }
+    return 0;
+  }
+
+  function buscarPremioGenerico(resultado, acertos, modalidade) {
+    if (!resultado.listaRateioPremio) return 0;
+    if (modalidade === "lotofacil") return buscarPremioLotoFacil(resultado, acertos);
+    const fnFaixa = {
+      megasena: a => a===6?1:a===5?2:a===4?3:0,
+      quina:    a => a===5?1:a===4?2:a===3?3:0
+    }[modalidade];
+    if (!fnFaixa) return 0;
+    const faixa = fnFaixa(acertos);
+    if (!faixa) return 0;
+    const item = resultado.listaRateioPremio.find(i => i.faixa === faixa);
+    return item && typeof item.valorPremio === "number" ? item.valorPremio : 0;
+  }
+
+  function distribuirPorJogador(premioTotal, jogadores) {
+    const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
+    if (!totalCotas || !premioTotal) return jogadores.map(j => ({ ...j, valor: 0 }));
+    const porCota = premioTotal / totalCotas;
+    return jogadores.map(j => ({ ...j, valor: porCota * j.cotas }));
+  }
+
+  // ── Criação do card ──
+
+  function criarCardBase(jogo) {
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.id = `game-${jogo.id}`;
+    card.innerHTML = `
+      <div class="game-header">
+        <div class="game-title">${jogo.nomeGrupo}</div>
+        <div class="subtitle">
+          Concurso ${jogo.concursoInicial} a ${jogo.concursoInicial + jogo.quantidadeTeimosinha - 1}
+          (${jogo.quantidadeTeimosinha} jogos)
+        </div>
+      </div>
+
+      <div id="teimosinha-status-${jogo.id}" class="teimosinha-status" style="display:none;">
+        Carregando...
+      </div>
+
+      <div class="section-title">Dezenas do Jogo</div>
+      <div class="numbers-row">
+        ${jogo.dezenas.map(d => `<span class="num-pill">${d}</span>`).join("")}
+      </div>
+
+      <div id="summary-section-${jogo.id}" class="hidden-section">
+        <div class="section-title">Resumo Geral</div>
+        <div class="prize-box" id="summary-${jogo.id}">
+          <div class="prize-item">
+            <span class="prize-label">Total de Prêmios</span>
+            <span class="prize-value" data-field="total">R$ 0,00</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Concursos com Prêmio</span>
+            <span class="prize-value" data-field="qtde">0</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Melhor Acerto</span>
+            <span class="prize-value" data-field="melhor">0</span>
+          </div>
+          <div class="prize-item">
+            <span class="prize-label">Conferidos</span>
+            <span class="prize-value" data-field="conferidos">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Jogadores e Cotas</div>
+      <table class="players-table" id="players-${jogo.id}">
+        <thead>
+          <tr>
+            <th>Jogador</th>
+            <th style="text-align:center;">Cotas</th>
+            <th style="text-align:right;">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${jogo.jogadores.map(j => `
+            <tr>
+              <td>${j.nome}</td>
+              <td style="text-align:center;">${j.cotas}</td>
+              <td class="amount value-hidden">R$ 0,00</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+
+      <div class="loading-message" id="loading-msg-${jogo.id}">
+        ⏳ Conferindo concursos...
+      </div>
+
+      <div class="section-title" id="details-title-${jogo.id}" style="display:none;">Último Concurso</div>
+      <div id="details-${jogo.id}"></div>
+      <div id="hidden-details-${jogo.id}" class="hidden-details"></div>
+
+      <button class="btn-show-all" id="btn-${jogo.id}"
+              onclick="toggleAllConcursos(${jogo.id})" style="display:none;">
+        <span>▼</span> Ver Todos os Concursos
+      </button>
+    `;
+    gamesContainer.appendChild(card);
+  }
+
+  // ── Atualização de estado ──
+
+  function atualizarStatusTeimosinha(jogoId, concursoAtual, jogo, concursosConferidos) {
+    const el = document.getElementById(`teimosinha-status-${jogoId}`);
+    if (!el) return;
+    const concursoFinal = jogo.concursoInicial + jogo.quantidadeTeimosinha - 1;
+
+    if (concursoAtual === null) {
+      el.innerHTML = '⚠️ Não foi possível verificar o concurso atual';
+      el.style.cssText = 'background:#fee2e2;border-color:#fca5a5;color:#991b1b;display:block;';
+      return;
+    }
+    if (concursoAtual < jogo.concursoInicial) {
+      const faltam = jogo.concursoInicial - concursoAtual;
+      el.innerHTML = `⏸️ <strong>Ainda não iniciou</strong><br>Concurso atual: ${concursoAtual} · Faltam ${faltam} para iniciar`;
+      el.style.cssText = 'background:#fef3c7;border-color:#fde047;color:#92400e;display:block;';
+    } else if (concursoAtual > concursoFinal) {
+      el.innerHTML = `✅ <strong>Finalizada!</strong><br>Todos os ${jogo.quantidadeTeimosinha} concursos realizados`;
+      el.style.cssText = 'background:#f0fdf4;border-color:#86efac;color:#166534;display:block;';
+    } else {
+      const pos   = concursoAtual - jogo.concursoInicial + 1;
+      const faltam = concursoFinal - concursoAtual;
+      el.innerHTML = `🎯 <strong>Em andamento</strong><br>Concurso atual: ${concursoAtual} · ${pos}/${jogo.quantidadeTeimosinha} · Faltam ${faltam}`;
+      el.style.cssText = 'background:#dbeafe;border-color:#93c5fd;color:#1e40af;display:block;';
+    }
+  }
+
+  function atualizarResumo(jogoId, resumo) {
+    const summary = document.getElementById(`summary-${jogoId}`);
+    if (!summary) return;
+    summary.querySelector('[data-field="total"]').textContent      = `R$ ${formatMoney(resumo.totalPremios)}`;
+    summary.querySelector('[data-field="qtde"]').textContent       = resumo.concursosComPremio;
+    summary.querySelector('[data-field="melhor"]').textContent     = resumo.melhorAcerto;
+    summary.querySelector('[data-field="conferidos"]').textContent = resumo.concursosConferidos;
+  }
+
+  function atualizarJogadoresTabela(jogoId, jogadoresComValores) {
+    const rows = Array.from(document.querySelectorAll(`#players-${jogoId} tbody tr`));
+    rows.forEach((tr, idx) => {
+      const j = jogadoresComValores[idx];
+      if (!j) return;
+      tr.querySelector(".amount").textContent = `R$ ${formatMoney(j.valor)}`;
+    });
+  }
+
+  function mostrarResumoEValores(jogoId) {
+    const summarySection = document.getElementById(`summary-section-${jogoId}`);
+    const loadingMsg     = document.getElementById(`loading-msg-${jogoId}`);
+    const detailsTitle   = document.getElementById(`details-title-${jogoId}`);
+    const btn            = document.getElementById(`btn-${jogoId}`);
+    if (summarySection) summarySection.classList.remove('hidden-section');
+    if (loadingMsg)     loadingMsg.style.display = 'none';
+    if (detailsTitle)   detailsTitle.style.display = 'block';
+    if (btn)            btn.style.display = 'flex';
+    document.querySelectorAll(`#players-${jogoId} tbody .amount`)
+      .forEach(c => c.classList.remove('value-hidden'));
+  }
+
+  function criarHTMLDetalhe(detalhe) {
+    const ganhou = detalhe.acertos >= 11 && detalhe.acertos <= 15 && detalhe.premioTotal > 0;
+    return `
+      <div class="status-row">
+        <div>Concurso <strong>${detalhe.numero}</strong> · Acertos: <strong>${detalhe.acertos}</strong></div>
+        <span class="status-pill ${ganhou ? "win" : ""}">
+          ${ganhou ? "Teve prêmio" : "Sem prêmio"}
+        </span>
+      </div>
+      <div class="numbers-row">
+        ${detalhe.dezenasSorteadas.map(n => `
+          <span class="num-pill ${detalhe.dezenasDoJogo.includes(n) ? "hit" : ""}">${n}</span>
+        `).join("")}
+      </div>
+      <div class="small">
+        Data: ${detalhe.dataApuracao} · Prêmio total deste concurso: R$ ${formatMoney(detalhe.premioTotal)}
+      </div>
+    `;
+  }
+
+  function adicionarDetalheConcurso(jogoId, detalhe, isUltimo = false) {
+    if (!concursosDetalhes[jogoId]) concursosDetalhes[jogoId] = [];
+    concursosDetalhes[jogoId].push(detalhe);
+    if (isUltimo) {
+      const details = document.getElementById(`details-${jogoId}`);
+      if (!details) return;
+      const wrapper = document.createElement("div");
+      wrapper.className = "detail-item";
+      wrapper.innerHTML = criarHTMLDetalhe(detalhe);
+      details.appendChild(wrapper);
+    }
+  }
+
+  function toggleAllConcursos(jogoId) {
+    const hiddenDetails = document.getElementById(`hidden-details-${jogoId}`);
+    const btn           = document.getElementById(`btn-${jogoId}`);
+    const sectionTitle  = document.getElementById(`details-title-${jogoId}`);
+    if (hiddenDetails.classList.contains('hidden-details')) {
+      hiddenDetails.innerHTML = '';
+      const concursos = concursosDetalhes[jogoId] || [];
+      for (let i = 1; i < concursos.length; i++) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "detail-item";
+        wrapper.innerHTML = criarHTMLDetalhe(concursos[i]);
+        hiddenDetails.appendChild(wrapper);
+      }
+      hiddenDetails.classList.remove('hidden-details');
+      btn.innerHTML = '<span>▲</span> Ocultar Concursos Anteriores';
+      sectionTitle.textContent = 'Todos os Concursos';
+    } else {
+      hiddenDetails.classList.add('hidden-details');
+      hiddenDetails.innerHTML = '';
+      btn.innerHTML = '<span>▼</span> Ver Todos os Concursos';
+      sectionTitle.textContent = 'Último Concurso';
+    }
+  }
+
+  // ── Conferência ──
+
+  async function conferirJogo(jogo) {
+    let totalPremios = 0, concursosComPremio = 0, melhorAcerto = 0, concursosConferidos = 0;
+    const MAX_TENTATIVAS = 3;
+    let jogadoresAcumulado = jogo.jogadores.map(j => ({ ...j, valor: 0 }));
+    concursosDetalhes[jogo.id] = [];
+
+    const concursoAtual = await buscarConcursoAtual(jogo.modalidade);
+    const concursoFinal = jogo.concursoInicial + jogo.quantidadeTeimosinha - 1;
+    let ultimoConcurso  = concursoFinal;
+    if (concursoAtual !== null && concursoAtual < concursoFinal) ultimoConcurso = concursoAtual;
+    if (concursoAtual !== null && concursoAtual < jogo.concursoInicial) ultimoConcurso = jogo.concursoInicial - 1;
+
+    const qtde = Math.max(0, ultimoConcurso - jogo.concursoInicial + 1);
+    atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, 0);
+
+    if (qtde === 0) {
+      const msg = document.getElementById(`loading-msg-${jogo.id}`);
+      if (msg) { msg.textContent = '⏸️ Nenhum concurso disponível ainda'; msg.style.background = '#fef3c7'; }
+      mostrarResumoEValores(jogo.id);
+      return;
+    }
+
+    for (let i = qtde - 1; i >= 0; i--) {
+      const numeroConcurso = jogo.concursoInicial + i;
+      const isUltimo = (i === qtde - 1);
+      let sucesso = false;
+
+      for (let t = 0; t < MAX_TENTATIVAS && !sucesso; t++) {
+        try {
+          if (t > 0) await sleep(2000 * t);
+          const resp = await fetch(`https://api.guidi.dev.br/loteria/${jogo.modalidade}/${numeroConcurso}`);
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const data = await resp.json();
+
+          if (!data.listaDezenas) {
+            adicionarDetalheConcurso(jogo.id, {
+              numero: numeroConcurso, acertos: 0, premioTotal: 0,
+              dezenasSorteadas: [], dezenasDoJogo: jogo.dezenas, dataApuracao: "Sem dados"
+            }, isUltimo);
+            concursosConferidos++; sucesso = true; continue;
+          }
+
+          const dezenasSorteadas = Array.isArray(data.listaDezenas[0]) ? data.listaDezenas[0] : data.listaDezenas;
+          const acertos          = calcularAcertos(dezenasSorteadas, jogo.dezenas);
+          const premio           = buscarPremioGenerico(data, acertos, jogo.modalidade);
+
+          if (acertos > melhorAcerto) melhorAcerto = acertos;
+          if (premio > 0 && acertos >= 11) concursosComPremio++;
+          totalPremios += premio;
+
+          const distrib = distribuirPorJogador(premio, jogo.jogadores);
+          jogadoresAcumulado = jogadoresAcumulado.map((j, idx) => ({ ...j, valor: j.valor + distrib[idx].valor }));
+
+          adicionarDetalheConcurso(jogo.id, {
+            numero: numeroConcurso, acertos, premioTotal: premio,
+            dezenasSorteadas, dezenasDoJogo: jogo.dezenas,
+            dataApuracao: formatarData(data.dataApuracao)
+          }, isUltimo);
+
+          concursosConferidos++; sucesso = true;
+        } catch(e) {
+          if (t === MAX_TENTATIVAS - 1) {
+            const details = document.getElementById(`details-${jogo.id}`);
+            if (details) {
+              const err = document.createElement("div");
+              err.className = "error";
+              err.textContent = `Erro no concurso ${numeroConcurso}: ${e.message}`;
+              details.appendChild(err);
+            }
+          }
+        }
+      }
+      await sleep(800 + Math.random() * 400);
+    }
+
+    atualizarResumo(jogo.id, { totalPremios, concursosComPremio, melhorAcerto, concursosConferidos });
+    atualizarJogadoresTabela(jogo.id, jogadoresAcumulado);
+    atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, concursosConferidos);
+    mostrarResumoEValores(jogo.id);
+  }
+
+  async function conferirTodos() {
+    gamesContainer.innerHTML = "";
+    loadingEl.style.display  = "block";
+    JOGOS.forEach(j => criarCardBase(j));
+    for (const jogo of JOGOS) await conferirJogo(jogo);
+    loadingEl.style.display = "none";
+  }
+
+  window.toggleAllConcursos = toggleAllConcursos;
+  window.addEventListener("load", () => conferirTodos());
+</script>
+</body>
+</html>
+```
