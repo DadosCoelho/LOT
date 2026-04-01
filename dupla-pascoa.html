@@ -71,6 +71,7 @@
     .sorteio-status strong { font-weight: 700; }
     .sorteio-status.realizado { background: #f5f3ff; border-color: var(--color4); color: var(--color1); }
     .sorteio-status.erro      { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .sorteio-status.aguardando { background: #fef3c7; border-color: #fde047; color: #92400e; }
 
     /* ── Títulos de seção ── */
     .section-title {
@@ -380,7 +381,15 @@
   function setStatusCard(jogoId, tipo, texto) {
     const el = document.getElementById(`sorteio-status-${jogoId}`);
     if (!el) return;
-    el.className = `sorteio-status${tipo === "realizado" ? " realizado" : tipo === "erro" ? " erro" : ""}`;
+    if (tipo === "realizado") {
+      el.className = "sorteio-status realizado";
+    } else if (tipo === "erro") {
+      el.className = "sorteio-status erro";
+    } else if (tipo === "aguardando") {
+      el.className = "sorteio-status aguardando";
+    } else {
+      el.className = "sorteio-status";
+    }
     el.innerHTML = texto;
   }
 
@@ -442,9 +451,16 @@
       try {
         if (t > 0) await sleep(2000 * t);
         const resp = await fetch(url);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        if (!resp.ok) {
+          if (resp.status === 404) {
+            return { status: "notfound" };
+          }
+          throw new Error(`HTTP ${resp.status}`);
+        }
         return await resp.json();
-      } catch(e) { if (t === 2) throw e; }
+      } catch(e) {
+        if (t === 2) throw e;
+      }
     }
   }
 
@@ -479,14 +495,18 @@
             dados.listaDezenas.length >= 12
         );
 
-    if (!listaOk) {
-      const concurso = dados.numero || CONCURSO_PASCOA || "—";
-      const data     = dados.dataApuracao ? formatarData(dados.dataApuracao) : null;
+    if (!listaOk || dados?.status === "notfound") {
+      const concurso = dados?.numero || CONCURSO_PASCOA || "—";
+      const data     = dados?.dataApuracao ? formatarData(dados.dataApuracao) : null;
       JOGOS.forEach(j => {
         setStatusCard(j.id, "aguardando",
           `⏸️ <strong>Aguardando sorteio</strong> · Concurso ${concurso}${data ? ` · Previsto: ${data}` : ""}`);
         const msg = document.getElementById(`loading-msg-${j.id}`);
-        if (msg) msg.textContent = "⏸️ Sorteio ainda não realizado. Volte após o sorteio!";
+        if (msg) {
+          msg.textContent = "⏸️ Sorteio ainda não realizado. Volte após o sorteio!";
+          msg.style.background = "#fef3c7";
+          msg.style.color = "#92400e";
+        }
       });
       return;
     }
