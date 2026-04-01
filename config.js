@@ -39,7 +39,7 @@ const CONFIG = {
   duplaPascoa: {
 
     // Número do concurso. Deixe null para buscar o último automaticamente.
-    CONCURSO: null,
+    CONCURSO: 2938,
 
     // Jogadores e cotas (total = 10)
     JOGADORES: [
@@ -57,9 +57,9 @@ const CONFIG = {
     // Cada jogo tem 6 dezenas (Dupla Sena vai de 01 a 50).
     // Substitua pelas dezenas reais antes do sorteio!
     JOGOS: [
-      { id: 1, nome: "Jogo 1", dezenas: ["03","07","12","18","24","30"] },
-      { id: 2, nome: "Jogo 2", dezenas: ["02","09","11","17","22","28"] },
-      { id: 3, nome: "Jogo 3", dezenas: ["05","08","14","20","26","36"] }
+      { id: 1, nome: "Dupla de Pascoa 1", dezenas: ["03","07","12","18","24","30"] },
+      { id: 2, nome: "Dupla de Pascoa 2", dezenas: ["04","05","09","10","13","23"] },
+      { id: 3, nome: "Dupla de Pascoa 3", dezenas: ["05","08","14","20","26","36"] }
       // Para adicionar mais jogos, copie uma linha acima e incremente o id.
     ]
   }

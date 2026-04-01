@@ -312,48 +312,6 @@
         ${jogo.dezenas.map(d => `<span class="num-pill">${d}</span>`).join("")}
       </div>
 
-      <div id="summary-section-${jogo.id}" class="hidden-section">
-        <div class="section-title">Resumo do Jogo</div>
-        <div class="prize-box" id="summary-${jogo.id}">
-          <div class="prize-item">
-            <span class="prize-label">Total de Prêmios</span>
-            <span class="prize-value gold" data-field="total">R$ 0,00</span>
-          </div>
-          <div class="prize-item">
-            <span class="prize-label">1º Sorteio</span>
-            <span class="prize-value" data-field="prize1">R$ 0,00</span>
-          </div>
-          <div class="prize-item">
-            <span class="prize-label">2º Sorteio</span>
-            <span class="prize-value" data-field="prize2">R$ 0,00</span>
-          </div>
-          <div class="prize-item">
-            <span class="prize-label">Melhor Acerto</span>
-            <span class="prize-value" data-field="melhor">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title">Jogadores e Cotas</div>
-      <table class="players-table" id="players-${jogo.id}">
-        <thead>
-          <tr>
-            <th>Jogador</th>
-            <th style="text-align:center;">Cotas</th>
-            <th style="text-align:right;">Valor Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${JOGADORES.map(j => `
-            <tr>
-              <td>${j.nome}</td>
-              <td style="text-align:center;">${j.cotas}</td>
-              <td class="amount value-hidden">R$ 0,00</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-
       <div class="loading-message" id="loading-msg-${jogo.id}">
         ⏳ Aguardando dados do sorteio...
       </div>
@@ -367,20 +325,15 @@
   // ── HTML de detalhe por sorteio (mesma estrutura que criarHTMLDetalhe da teimosinha) ──
 
   function criarHTMLDetalheSorteio(numSorteio, dezenasSorteadas, acertos, premio, dezenasDoJogo) {
-    const ganhou = premio > 0 && acertos >= 3;
     return `
       <div class="status-row">
         <div><strong>${numSorteio}º Sorteio</strong> · Acertos: <strong>${acertos}</strong></div>
-        <span class="status-pill ${ganhou ? "win" : ""}">
-          ${ganhou ? "Teve prêmio" : "Sem prêmio"}
-        </span>
       </div>
       <div class="numbers-row">
         ${dezenasSorteadas.map(n => `
           <span class="num-pill ${dezenasDoJogo.includes(n) ? "hit" : ""}">${n}</span>
         `).join("")}
       </div>
-      <div class="small">Prêmio deste sorteio: R$ ${formatMoney(premio)}</div>
     `;
   }
 
@@ -401,24 +354,6 @@
       }).join("");
     }
 
-    // Resumo
-    const summary = document.getElementById(`summary-${jogo.id}`);
-    if (summary) {
-      summary.querySelector('[data-field="total"]').textContent  = `R$ ${formatMoney(totalJogo)}`;
-      summary.querySelector('[data-field="prize1"]').textContent = `R$ ${formatMoney(prize1)}`;
-      summary.querySelector('[data-field="prize2"]').textContent = `R$ ${formatMoney(prize2)}`;
-      summary.querySelector('[data-field="melhor"]').textContent = melhor;
-    }
-
-    // Jogadores
-    const distrib = distribuirPorJogador(totalJogo);
-    const rows    = Array.from(document.querySelectorAll(`#players-${jogo.id} tbody tr`));
-    rows.forEach((tr, idx) => {
-      const cell = tr.querySelector(".amount");
-      cell.textContent = `R$ ${formatMoney(distrib[idx].valor)}`;
-      cell.classList.remove("value-hidden");
-    });
-
     // Detalhes dos 2 sorteios (como na teimosinha)
     const detailsEl = document.getElementById(`details-${jogo.id}`);
     if (detailsEl) {
@@ -434,7 +369,6 @@
     }
 
     // Exibe seções
-    document.getElementById(`summary-section-${jogo.id}`)?.classList.remove("hidden-section");
     const loadingMsg = document.getElementById(`loading-msg-${jogo.id}`);
     if (loadingMsg) loadingMsg.style.display = "none";
     const detailsTitle = document.getElementById(`details-title-${jogo.id}`);
@@ -453,8 +387,12 @@
   // ── Card de resumo global ──
 
   function criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal) {
-    const card = document.createElement("div");
-    card.className = "global-card";
+    let card = document.getElementById("global-summary-card");
+    if (!card) {
+      card = document.createElement("div");
+      card.id = "global-summary-card";
+      card.className = "global-card";
+    }
     card.innerHTML = `
       <div class="global-title">🏆 Resumo Geral — Todos os Jogos</div>
 
@@ -478,6 +416,7 @@
             <th style="text-align:right;">Total</th>
           </tr>
         </thead>
+
         <tbody>
           ${distribGlobal.map(j => `
             <tr>
@@ -489,7 +428,8 @@
         </tbody>
       </table>
     `;
-    gamesContainer.appendChild(card);
+    // Garante que o Resumo Geral fique sempre no topo
+    gamesContainer.insertBefore(card, gamesContainer.firstChild);
   }
 
   // ── Busca dados do concurso ──
@@ -512,6 +452,7 @@
 
   async function conferirTodos() {
     loadingEl.style.display = "block";
+    criarCardResumoGlobal(0, 0, JOGADORES.map(j => ({ ...j, valor: 0 })));
     JOGOS.forEach(j => criarCardBase(j));
 
     let dados = null;
