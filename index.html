@@ -3,8 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>LOT – Loterias</title>
+
   <link rel="icon" type="image/x-icon" href="icon.ico">
+
+  <!-- Lottie Player -->
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -29,13 +35,17 @@
       background: linear-gradient(135deg, #03750e, #40a63e);
       color: #fff; padding: 28px 20px 24px; text-align: center;
     }
-    .header-icon {
-      width: 52px; height: 52px; background: rgba(255,255,255,0.2);
-      border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; margin: 0 auto 12px; font-size: 1.8rem;
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: 1px; }
-    .header h1 img { width: 32px; height: 32px; vertical-align: middle; margin-right: 8px; }
+
     .header p  { margin-top: 6px; font-size: 0.9rem; opacity: 0.85; }
 
     .content { padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
@@ -53,34 +63,20 @@
     }
     .lottery-card:active { transform: scale(0.98); }
 
-    /* Verde – Teimosinha */
     .card-teimosinha { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #86efac; }
     .card-teimosinha:hover { border-color: #22c55e; box-shadow: 0 6px 20px rgba(34,197,94,0.2); transform: translateY(-2px); }
-    .card-teimosinha .card-icon  { background: linear-gradient(135deg, #03750e, #40a63e); }
     .card-teimosinha .card-title { color: #166534; }
     .card-teimosinha .card-arrow { color: #22c55e; }
 
-    /* Roxo – Dupla de Páscoa */
     .card-pascoa { background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-color: #d8b4fe; }
     .card-pascoa:hover { border-color: #a855f7; box-shadow: 0 6px 20px rgba(168,85,247,0.2); transform: translateY(-2px); }
-    .card-pascoa .card-icon  { background: linear-gradient(135deg, #6b21a8, #a855f7); }
     .card-pascoa .card-title { color: #581c87; }
     .card-pascoa .card-arrow { color: #a855f7; }
 
-    .card-icon {
-      width: 52px; height: 52px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
     .card-body { flex: 1; min-width: 0; }
     .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 3px; }
     .card-desc  { font-size: 0.82rem; color: #64748b; line-height: 1.4; }
-    .card-badge {
-      display: inline-block; margin-top: 6px; padding: 3px 9px;
-      border-radius: 20px; font-size: 0.75rem; font-weight: 700;
-    }
-    .badge-green { background: #dcfce7; color: #166534; }
-    .badge-new   { background: linear-gradient(135deg, #fef9c3, #fde047); color: #854d0e; }
+
     .card-arrow  { font-size: 1.4rem; flex-shrink: 0; transition: transform 0.2s; }
     .lottery-card:hover .card-arrow { transform: translateX(4px); }
 
@@ -93,7 +89,6 @@
       .header h1 { font-size: 1.6rem; }
       .content { padding: 16px 14px; }
       .lottery-card { padding: 15px 14px; }
-      .card-icon { width: 44px; height: 44px; font-size: 1.3rem; border-radius: 11px; }
       .card-title { font-size: 0.98rem; }
     }
   </style>
@@ -101,7 +96,20 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1><img src="icon.ico" alt="Ícone">LOT</h1>
+
+      <h1>
+        <lottie-player
+          src="luck.json"
+          background="transparent"
+          speed="1"
+          style="width: 80px; height: 80px;"
+          loop
+          autoplay>
+        </lottie-player>
+
+        LOT
+      </h1>
+
       <p>Acompanhe seus jogos de loteria</p>
     </div>
 
