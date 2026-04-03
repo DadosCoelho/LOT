@@ -303,11 +303,11 @@
     return 0;
   }
 
-  function distribuirPorJogador(premioTotal) {
-    const totalCotas = JOGADORES.reduce((s, j) => s + j.cotas, 0);
-    if (!totalCotas || !premioTotal) return JOGADORES.map(j => ({ ...j, valor: 0 }));
+  function distribuirPorJogador(premioTotal, jogadores = JOGADORES) {
+    const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
+    if (!totalCotas || !premioTotal) return jogadores.map(j => ({ ...j, valor: 0 }));
     const porCota = premioTotal / totalCotas;
-    return JOGADORES.map(j => ({ ...j, valor: porCota * j.cotas }));
+    return jogadores.map(j => ({ ...j, valor: porCota * j.cotas }));
   }
 
   // ── Cria card de jogo (mesma estrutura que teimosinha) ──
@@ -341,17 +341,24 @@
     gamesContainer.appendChild(card);
   }
 
-  // ── HTML de detalhe por sorteio (mesma estrutura que criarHTMLDetalhe da teimosinha) ──
+  // ── HTML de detalhe por sorteio (exibe acertos e prêmio de cada sorteio) ──
 
   function criarHTMLDetalheSorteio(numSorteio, dezenasSorteadas, acertos, premio, dezenasDoJogo) {
+    const ganhou = acertos >= 3 && premio > 0;
     return `
       <div class="status-row">
         <div><strong>${numSorteio}º Sorteio</strong> · Acertos: <strong>${acertos}</strong></div>
+        <span class="status-pill ${ganhou ? "win" : ""}">
+          ${ganhou ? "Teve prêmio" : "Sem prêmio"}
+        </span>
       </div>
       <div class="numbers-row">
         ${dezenasSorteadas.map(n => `
           <span class="num-pill ${dezenasDoJogo.includes(n) ? "hit" : ""}">${n}</span>
         `).join("")}
+      </div>
+      <div class="small">
+        Prêmio neste sorteio: <strong>R$ ${formatMoney(premio)}</strong>
       </div>
     `;
   }
@@ -438,13 +445,13 @@
       </div>
 
       <div class="global-players">
-        <div class="section-title" style="margin:0 0 10px;">Valor por Jogador</div>
+        <div class="section-title" style="margin:0 0 10px;">Distribuição por Jogador</div>
         <table class="players-table">
           <thead>
             <tr>
               <th>Jogador</th>
               <th style="text-align:center;">Cotas</th>
-              <th style="text-align:right;">Total</th>
+              <th style="text-align:right;">Total Recebido</th>
             </tr>
           </thead>
           <tbody>

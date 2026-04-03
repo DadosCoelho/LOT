@@ -298,7 +298,9 @@
     return item && typeof item.valorPremio === "number" ? item.valorPremio : 0;
   }
 
-  function distribuirPorJogador(premioTotal, jogadores) {
+  function distribuirPorJogador(premioTotal, jogadores = []) {
+    // Se não passou jogadores, retorna vazio. Deve ser chamado com array válido.
+    if (!jogadores.length) return [];
     const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
     if (!totalCotas || !premioTotal) return jogadores.map(j => ({ ...j, valor: 0 }));
     const porCota = premioTotal / totalCotas;

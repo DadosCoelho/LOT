@@ -42,6 +42,8 @@ const CONFIG = {
     CONCURSO: 2940,
 
     // Jogadores e cotas (total = 10)
+    // ⚠️ IMPORTANTE: Pelo menos um jogador deve ter cotas > 0
+    // Se todos tiverem cotas = 0, a tabela não será exibida e nenhum cálculo será feito.
     JOGADORES: [
       { nome: "Reinaldo", cotas: 10 },
       { nome: "Rafael",   cotas: 0 },
