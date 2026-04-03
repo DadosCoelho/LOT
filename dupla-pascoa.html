@@ -431,6 +431,28 @@
         <div class="global-aguardando">
           ⏸️ <strong>Aguardando sorteio</strong> · Concurso ${concurso} · Sorteio ainda não realizado. Volte após o sorteio!
         </div>
+
+        <div class="global-players">
+          <div class="section-title" style="margin:12px 0 10px;">Distribuição de Cotas</div>
+          <table class="players-table">
+            <thead>
+              <tr>
+                <th>Jogador</th>
+                <th style="text-align:center;">Cotas</th>
+                <th style="text-align:right;">Total Recebido</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${distribGlobal.filter(j => j.cotas > 0).map(j => `
+                <tr>
+                  <td>${j.nome}</td>
+                  <td style="text-align:center;">${j.cotas}</td>
+                  <td class="amount">R$ ${formatMoney(j.valor)}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
       `;
       return;
     }
