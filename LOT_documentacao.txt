@@ -1,7 +1,7 @@
 # Documentação do Projeto: LOT
 Gerado automaticamente pelo Gerador de Conteúdo
-Data: 01/04/2026 11:00:29
-Caminho base: C:\Users\reinaldo.coelho\Downloads\LOT
+Data: 03/04/2026 16:58:33
+Caminho base: C:\Users\daldo\Documents\GitHub\LOT
 
 ============================================================
 
@@ -34,18 +34,18 @@ const CONFIG = {
         id: 2,
         nomeGrupo: "Lotofácil",
         modalidade: "lotofacil",
-        concursoInicial: 3606,
+        concursoInicial: 3651,
         quantidadeTeimosinha: 24,
-        dezenas: ["01","03","04","05","07","08","10","12","13","15","17","19","20","23","25"],
+        dezenas: ["02","03","05","06","09","10","11","12","15","16","19","21","22","23","25"],
         jogadores: [
-          { nome: "Reinaldo", cotas: 2 },
-          { nome: "Rafael",   cotas: 2 },
-          { nome: "Luno",     cotas: 1 },
-          { nome: "Ana",      cotas: 1 },
-          { nome: "Ricardo",  cotas: 1 },
-          { nome: "Osmar",    cotas: 1 },
-          { nome: "Vinicius", cotas: 1 },
-          { nome: "Herika",   cotas: 1 }
+          { nome: "Reinaldo", cotas: 20 },
+          { nome: "Rafael",   cotas: 0 },
+          { nome: "Luno",     cotas: 0 },
+          { nome: "Ana",      cotas: 0 },
+          { nome: "Ricardo",  cotas: 0 },
+          { nome: "Osmar",    cotas: 0 },
+          { nome: "Vinicius", cotas: 0 },
+          { nome: "Herika",   cotas: 0 }
         ]
       }
     ]
@@ -57,27 +57,34 @@ const CONFIG = {
   duplaPascoa: {
 
     // Número do concurso. Deixe null para buscar o último automaticamente.
-    CONCURSO: null,
+    CONCURSO: 2940,
 
     // Jogadores e cotas (total = 10)
     JOGADORES: [
-      { nome: "Reinaldo", cotas: 2 },
-      { nome: "Rafael",   cotas: 2 },
-      { nome: "Luno",     cotas: 1 },
-      { nome: "Ana",      cotas: 1 },
-      { nome: "Ricardo",  cotas: 1 },
-      { nome: "Osmar",    cotas: 1 },
-      { nome: "Vinicius", cotas: 1 },
-      { nome: "Herika",   cotas: 1 }
+      { nome: "Reinaldo", cotas: 10 },
+      { nome: "Rafael",   cotas: 0 },
+      { nome: "Luno",     cotas: 0 },
+      { nome: "Ana",      cotas: 0 },
+      { nome: "Ricardo",  cotas: 0 },
+      { nome: "Osmar",    cotas: 0 },
+      { nome: "Vinicius", cotas: 0 },
+      { nome: "Herika",   cotas: 0 }
     ],
 
     // Lista de jogos apostados.
     // Cada jogo tem 6 dezenas (Dupla Sena vai de 01 a 50).
     // Substitua pelas dezenas reais antes do sorteio!
     JOGOS: [
-      { id: 1, nome: "Jogo 1", dezenas: ["03","07","12","18","24","30"] },
-      { id: 2, nome: "Jogo 2", dezenas: ["02","09","11","17","22","28"] },
-      { id: 3, nome: "Jogo 3", dezenas: ["05","08","14","20","26","36"] }
+      { id: 1, nome: "Dupla de Pascoa 1", dezenas: ["13","16","28","29","43","44"] },
+      { id: 2, nome: "Dupla de Pascoa 2", dezenas: ["04","05","08","34","49","50"] },
+      { id: 3, nome: "Dupla de Pascoa 3", dezenas: ["10","20","29","36","48","50"] },
+      { id: 4, nome: "Dupla de Pascoa 4", dezenas: ["01","28","29","34","40","43"] },
+      { id: 5, nome: "Dupla de Pascoa 5", dezenas: ["17","20","23","28","30","34"] },
+      { id: 6, nome: "Dupla de Pascoa 6", dezenas: ["13","15","24","25","28","47"] },
+      { id: 7, nome: "Dupla de Pascoa 7", dezenas: ["02","13","18","38","41","48"] },
+      { id: 8, nome: "Dupla de Pascoa 8", dezenas: ["01","02","08","20","30","47"] },
+      { id: 9, nome: "Dupla de Pascoa 9", dezenas: ["02","04","15","24","25","50"] },
+      { id: 10, nome: "Dupla de Pascoa 10", dezenas: ["17","36","37","38","47","50"] }
       // Para adicionar mais jogos, copie uma linha acima e incremente o id.
     ]
   }
@@ -160,6 +167,7 @@ const CONFIG = {
     .sorteio-status strong { font-weight: 700; }
     .sorteio-status.realizado { background: #f5f3ff; border-color: var(--color4); color: var(--color1); }
     .sorteio-status.erro      { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .sorteio-status.aguardando { background: #fef3c7; border-color: #fde047; color: #92400e; }
 
     /* ── Títulos de seção ── */
     .section-title {
@@ -401,48 +409,6 @@ const CONFIG = {
         ${jogo.dezenas.map(d => `<span class="num-pill">${d}</span>`).join("")}
       </div>
 
-      <div id="summary-section-${jogo.id}" class="hidden-section">
-        <div class="section-title">Resumo do Jogo</div>
-        <div class="prize-box" id="summary-${jogo.id}">
-          <div class="prize-item">
-            <span class="prize-label">Total de Prêmios</span>
-            <span class="prize-value gold" data-field="total">R$ 0,00</span>
-          </div>
-          <div class="prize-item">
-            <span class="prize-label">1º Sorteio</span>
-            <span class="prize-value" data-field="prize1">R$ 0,00</span>
-          </div>
-          <div class="prize-item">
-            <span class="prize-label">2º Sorteio</span>
-            <span class="prize-value" data-field="prize2">R$ 0,00</span>
-          </div>
-          <div class="prize-item">
-            <span class="prize-label">Melhor Acerto</span>
-            <span class="prize-value" data-field="melhor">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title">Jogadores e Cotas</div>
-      <table class="players-table" id="players-${jogo.id}">
-        <thead>
-          <tr>
-            <th>Jogador</th>
-            <th style="text-align:center;">Cotas</th>
-            <th style="text-align:right;">Valor Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${JOGADORES.map(j => `
-            <tr>
-              <td>${j.nome}</td>
-              <td style="text-align:center;">${j.cotas}</td>
-              <td class="amount value-hidden">R$ 0,00</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-
       <div class="loading-message" id="loading-msg-${jogo.id}">
         ⏳ Aguardando dados do sorteio...
       </div>
@@ -456,20 +422,15 @@ const CONFIG = {
   // ── HTML de detalhe por sorteio (mesma estrutura que criarHTMLDetalhe da teimosinha) ──
 
   function criarHTMLDetalheSorteio(numSorteio, dezenasSorteadas, acertos, premio, dezenasDoJogo) {
-    const ganhou = premio > 0 && acertos >= 3;
     return `
       <div class="status-row">
         <div><strong>${numSorteio}º Sorteio</strong> · Acertos: <strong>${acertos}</strong></div>
-        <span class="status-pill ${ganhou ? "win" : ""}">
-          ${ganhou ? "Teve prêmio" : "Sem prêmio"}
-        </span>
       </div>
       <div class="numbers-row">
         ${dezenasSorteadas.map(n => `
           <span class="num-pill ${dezenasDoJogo.includes(n) ? "hit" : ""}">${n}</span>
         `).join("")}
       </div>
-      <div class="small">Prêmio deste sorteio: R$ ${formatMoney(premio)}</div>
     `;
   }
 
@@ -490,24 +451,6 @@ const CONFIG = {
       }).join("");
     }
 
-    // Resumo
-    const summary = document.getElementById(`summary-${jogo.id}`);
-    if (summary) {
-      summary.querySelector('[data-field="total"]').textContent  = `R$ ${formatMoney(totalJogo)}`;
-      summary.querySelector('[data-field="prize1"]').textContent = `R$ ${formatMoney(prize1)}`;
-      summary.querySelector('[data-field="prize2"]').textContent = `R$ ${formatMoney(prize2)}`;
-      summary.querySelector('[data-field="melhor"]').textContent = melhor;
-    }
-
-    // Jogadores
-    const distrib = distribuirPorJogador(totalJogo);
-    const rows    = Array.from(document.querySelectorAll(`#players-${jogo.id} tbody tr`));
-    rows.forEach((tr, idx) => {
-      const cell = tr.querySelector(".amount");
-      cell.textContent = `R$ ${formatMoney(distrib[idx].valor)}`;
-      cell.classList.remove("value-hidden");
-    });
-
     // Detalhes dos 2 sorteios (como na teimosinha)
     const detailsEl = document.getElementById(`details-${jogo.id}`);
     if (detailsEl) {
@@ -523,7 +466,6 @@ const CONFIG = {
     }
 
     // Exibe seções
-    document.getElementById(`summary-section-${jogo.id}`)?.classList.remove("hidden-section");
     const loadingMsg = document.getElementById(`loading-msg-${jogo.id}`);
     if (loadingMsg) loadingMsg.style.display = "none";
     const detailsTitle = document.getElementById(`details-title-${jogo.id}`);
@@ -535,15 +477,27 @@ const CONFIG = {
   function setStatusCard(jogoId, tipo, texto) {
     const el = document.getElementById(`sorteio-status-${jogoId}`);
     if (!el) return;
-    el.className = `sorteio-status${tipo === "realizado" ? " realizado" : tipo === "erro" ? " erro" : ""}`;
+    if (tipo === "realizado") {
+      el.className = "sorteio-status realizado";
+    } else if (tipo === "erro") {
+      el.className = "sorteio-status erro";
+    } else if (tipo === "aguardando") {
+      el.className = "sorteio-status aguardando";
+    } else {
+      el.className = "sorteio-status";
+    }
     el.innerHTML = texto;
   }
 
   // ── Card de resumo global ──
 
   function criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal) {
-    const card = document.createElement("div");
-    card.className = "global-card";
+    let card = document.getElementById("global-summary-card");
+    if (!card) {
+      card = document.createElement("div");
+      card.id = "global-summary-card";
+      card.className = "global-card";
+    }
     card.innerHTML = `
       <div class="global-title">🏆 Resumo Geral — Todos os Jogos</div>
 
@@ -567,6 +521,7 @@ const CONFIG = {
             <th style="text-align:right;">Total</th>
           </tr>
         </thead>
+
         <tbody>
           ${distribGlobal.map(j => `
             <tr>
@@ -578,7 +533,8 @@ const CONFIG = {
         </tbody>
       </table>
     `;
-    gamesContainer.appendChild(card);
+    // Garante que o Resumo Geral fique sempre no topo
+    gamesContainer.insertBefore(card, gamesContainer.firstChild);
   }
 
   // ── Busca dados do concurso ──
@@ -591,9 +547,16 @@ const CONFIG = {
       try {
         if (t > 0) await sleep(2000 * t);
         const resp = await fetch(url);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        if (!resp.ok) {
+          if (resp.status === 404) {
+            return { status: "notfound" };
+          }
+          throw new Error(`HTTP ${resp.status}`);
+        }
         return await resp.json();
-      } catch(e) { if (t === 2) throw e; }
+      } catch(e) {
+        if (t === 2) throw e;
+      }
     }
   }
 
@@ -601,6 +564,7 @@ const CONFIG = {
 
   async function conferirTodos() {
     loadingEl.style.display = "block";
+    criarCardResumoGlobal(0, 0, JOGADORES.map(j => ({ ...j, valor: 0 })));
     JOGOS.forEach(j => criarCardBase(j));
 
     let dados = null;
@@ -627,14 +591,18 @@ const CONFIG = {
             dados.listaDezenas.length >= 12
         );
 
-    if (!listaOk) {
-      const concurso = dados.numero || CONCURSO_PASCOA || "—";
-      const data     = dados.dataApuracao ? formatarData(dados.dataApuracao) : null;
+    if (!listaOk || dados?.status === "notfound") {
+      const concurso = dados?.numero || CONCURSO_PASCOA || "—";
+      const data     = dados?.dataApuracao ? formatarData(dados.dataApuracao) : null;
       JOGOS.forEach(j => {
         setStatusCard(j.id, "aguardando",
           `⏸️ <strong>Aguardando sorteio</strong> · Concurso ${concurso}${data ? ` · Previsto: ${data}` : ""}`);
         const msg = document.getElementById(`loading-msg-${j.id}`);
-        if (msg) msg.textContent = "⏸️ Sorteio ainda não realizado. Volte após o sorteio!";
+        if (msg) {
+          msg.textContent = "⏸️ Sorteio ainda não realizado. Volte após o sorteio!";
+          msg.style.background = "#fef3c7";
+          msg.style.color = "#92400e";
+        }
       });
       return;
     }
@@ -691,6 +659,11 @@ const CONFIG = {
 </script>
 </body>
 </html>
+```
+
+### 📄 LOT/icon.ico
+```
+[Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x80 in position 6: invalid start byte]
 ```
 
 ### 📄 LOT/index.html
@@ -804,17 +777,17 @@ const CONFIG = {
           autoplay>
         </lottie-player>
 
-        LOT
+        LOTERIAS
       </h1>
 
-      <p>Acompanhe seus jogos de loteria</p>
+      <p>Acompanhe nossos jogos da loteria!</p>
     </div>
 
     <div class="content">
       <a class="lottery-card card-teimosinha" href="lotofacil-teimosinha.html">
         <div class="card-body">
           <div class="card-title">Lotofácil - Teimosinha</div>
-          <div class="card-desc">Acompanhamento da teimosinha · 10 cotas</div>
+          <div class="card-desc">Acompanhamento da teimosinha</div>
         </div>
         <div class="card-arrow">›</div>
       </a>
@@ -822,13 +795,13 @@ const CONFIG = {
       <a class="lottery-card card-pascoa" href="dupla-pascoa.html">
         <div class="card-body">
           <div class="card-title">Dupla de Páscoa 2026</div>
-          <div class="card-desc">Sorteio especial de abril · Vários jogos · 10 cotas</div>
+          <div class="card-desc">Sorteio especial de abril</div>
         </div>
         <div class="card-arrow">›</div>
       </a>
     </div>
 
-    <div class="footer">LOT · Projeto pessoal de acompanhamento de loterias</div>
+    <div class="footer">LOTERIAS · Projeto pessoal de acompanhamento de loterias</div>
   </div>
 </body>
 </html>
