@@ -298,7 +298,9 @@
     return item && typeof item.valorPremio === "number" ? item.valorPremio : 0;
   }
 
-  function distribuirPorJogador(premioTotal, jogadores) {
+  function distribuirPorJogador(premioTotal, jogadores = []) {
+    // Se não passou jogadores, retorna vazio. Deve ser chamado com array válido.
+    if (!jogadores.length) return [];
     const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
     if (!totalCotas || !premioTotal) return jogadores.map(j => ({ ...j, valor: 0 }));
     const porCota = premioTotal / totalCotas;
@@ -361,7 +363,7 @@
           </tr>
         </thead>
         <tbody>
-          ${jogo.jogadores.map(j => `
+          ${jogo.jogadores.filter(j => j.cotas > 0).map(j => `
             <tr>
               <td>${j.nome}</td>
               <td style="text-align:center;">${j.cotas}</td>
@@ -425,8 +427,9 @@
 
   function atualizarJogadoresTabela(jogoId, jogadoresComValores) {
     const rows = Array.from(document.querySelectorAll(`#players-${jogoId} tbody tr`));
+    const jogadoresAtivos = jogadoresComValores.filter(j => j.cotas > 0);
     rows.forEach((tr, idx) => {
-      const j = jogadoresComValores[idx];
+      const j = jogadoresAtivos[idx];
       if (!j) return;
       tr.querySelector(".amount").textContent = `R$ ${formatMoney(j.valor)}`;
     });

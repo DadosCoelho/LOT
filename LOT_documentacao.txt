@@ -666,11 +666,14 @@ const CONFIG = {
 [Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x80 in position 6: invalid start byte]
 ```
 
+<<<<<<< HEAD
 ### 📄 LOT/icon.png
 ```
 [Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte]
 ```
 
+=======
+>>>>>>> f1ac1979702d443353ebdba7c7dee2d609a57213
 ### 📄 LOT/index.html
 ```
 <!DOCTYPE html>
