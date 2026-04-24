@@ -445,8 +445,8 @@
 
   async function buscarDadosConcurso() {
     const url = CONCURSO_PASCOA
-      ? `https://api.guidi.dev.br/loteria/duplasena/${CONCURSO_PASCOA}`
-      : `https://api.guidi.dev.br/loteria/duplasena/ultimo`;
+      ? `https://servicebus2.caixa.gov.br/portaldeloterias/api/duplasena/${CONCURSO_PASCOA}`
+      : `https://servicebus2.caixa.gov.br/portaldeloterias/api/duplasena/`;
     for (let t = 0; t < 3; t++) {
       try {
         if (t > 0) await sleep(2000 * t);

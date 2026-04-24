@@ -253,7 +253,7 @@
 
   async function buscarConcursoAtual(modalidade) {
     try {
-      const resp = await fetch(`https://api.guidi.dev.br/loteria/${modalidade}/ultimo`);
+      const resp = await fetch(`https://servicebus2.caixa.gov.br/portaldeloterias/api/${modalidade}/`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       return data.numero || null;
@@ -534,7 +534,7 @@
       for (let t = 0; t < MAX_TENTATIVAS && !sucesso; t++) {
         try {
           if (t > 0) await sleep(2000 * t);
-          const resp = await fetch(`https://api.guidi.dev.br/loteria/${jogo.modalidade}/${numeroConcurso}`);
+          const resp = await fetch(`https://servicebus2.caixa.gov.br/portaldeloterias/api/${jogo.modalidade}/${numeroConcurso}`);
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
           const data = await resp.json();
 
