@@ -244,6 +244,7 @@
 </div>
 
 <!-- Carrega a configuração central antes da lógica -->
+<script src="api.js"></script>
 <script src="config.js"></script>
 <script>
   // Lê os dados do config central
@@ -255,8 +256,6 @@
   const loadingEl      = document.getElementById("loading");
 
   // ── Utilitários ──
-
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   function formatMoney(v) {
     return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -490,29 +489,6 @@
     `;
   }
 
-  // ── Busca dados do concurso ──
-
-  async function buscarDadosConcurso() {
-    const url = CONCURSO_PASCOA
-      ? `https://servicebus2.caixa.gov.br/portaldeloterias/api/duplasena/${CONCURSO_PASCOA}`
-      : `https://servicebus2.caixa.gov.br/portaldeloterias/api/duplasena/`;
-    for (let t = 0; t < 3; t++) {
-      try {
-        if (t > 0) await sleep(2000 * t);
-        const resp = await fetch(url);
-        if (!resp.ok) {
-          if (resp.status === 404) {
-            return { status: "notfound" };
-          }
-          throw new Error(`HTTP ${resp.status}`);
-        }
-        return await resp.json();
-      } catch(e) {
-        if (t === 2) throw e;
-      }
-    }
-  }
-
   // ── Fluxo principal ──
 
   async function conferirTodos() {
@@ -521,7 +497,7 @@
 
     let dados = null;
     try {
-      dados = await buscarDadosConcurso();
+      dados = await ApiCaixa.buscarConcurso("duplasena", CONCURSO_PASCOA, 3);
     } catch(e) {
       JOGOS.forEach(j => {
         setStatusCard(j.id, "erro", `⚠️ Erro ao buscar dados: ${e.message}`);

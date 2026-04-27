@@ -1,6 +1,6 @@
 # Documentação do Projeto: LOT
 Gerado automaticamente pelo Gerador de Conteúdo
-Data: 24/04/2026 08:21:10
+Data: 27/04/2026 10:09:24
 Caminho base: C:\Users\reinaldo.coelho\Downloads\LOT
 
 ============================================================
@@ -60,6 +60,8 @@ const CONFIG = {
     CONCURSO: 2940,
 
     // Jogadores e cotas (total = 10)
+    // ⚠️ IMPORTANTE: Pelo menos um jogador deve ter cotas > 0
+    // Se todos tiverem cotas = 0, a tabela não será exibida e nenhum cálculo será feito.
     JOGADORES: [
       { nome: "Reinaldo", cotas: 10 },
       { nome: "Rafael",   cotas: 0 },
@@ -246,15 +248,30 @@ const CONFIG = {
     .small { font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.4; }
 
     /* ─── Card de resumo global ─── */
+    #globalSummaryWrapper { margin-bottom: 16px; }
     .global-card {
-      border-radius: 12px; padding: 16px;
+      border-radius: 12px; padding: 14px 16px;
       border-left: 4px solid #d97706;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       background: linear-gradient(135deg, #fffbeb, #fef3c7);
     }
-    .global-title {
-      font-weight: 700; font-size: 1.1rem; color: #92400e; margin-bottom: 12px;
+    .global-card-row {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
     }
+    .global-title {
+      font-weight: 700; font-size: 1rem; color: #92400e; white-space: nowrap;
+    }
+    .global-stat {
+      font-size: 0.9rem; color: #78350f;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .global-stat strong { color: #92400e; font-size: 1rem; }
+    .global-sep { color: #d97706; font-weight: 300; }
+    .global-aguardando {
+      font-size: 0.92rem; color: #92400e; line-height: 1.5;
+    }
+    /* tabela de jogadores no resumo (só aparece quando há prêmio) */
+    .global-players { margin-top: 14px; border-top: 1px solid #fde68a; padding-top: 12px; }
 
     /* ── Mobile ── */
     @media (max-width: 640px) {
@@ -305,7 +322,7 @@ const CONFIG = {
       .prize-item { border-bottom: none; border-right: 1px solid #e2e8f0; flex-direction: column; align-items: flex-start; gap: 6px; }
       .prize-item:nth-child(2n) { border-right: none; }
       .prize-item:nth-child(1), .prize-item:nth-child(2) { border-bottom: 1px solid #e2e8f0; }
-      .global-card { padding: 20px; }
+      .global-card { padding: 16px 20px; }
     }
   </style>
 </head>
@@ -317,6 +334,9 @@ const CONFIG = {
   </div>
   <div class="content">
     <div id="loading" class="loading"></div>
+    <div id="globalSummaryWrapper">
+      <div id="global-summary-card" class="global-card" style="display:none"></div>
+    </div>
     <div id="gamesContainer" class="games-grid"></div>
   </div>
 </div>
@@ -381,11 +401,11 @@ const CONFIG = {
     return 0;
   }
 
-  function distribuirPorJogador(premioTotal) {
-    const totalCotas = JOGADORES.reduce((s, j) => s + j.cotas, 0);
-    if (!totalCotas || !premioTotal) return JOGADORES.map(j => ({ ...j, valor: 0 }));
+  function distribuirPorJogador(premioTotal, jogadores = JOGADORES) {
+    const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
+    if (!totalCotas || !premioTotal) return jogadores.map(j => ({ ...j, valor: 0 }));
     const porCota = premioTotal / totalCotas;
-    return JOGADORES.map(j => ({ ...j, valor: porCota * j.cotas }));
+    return jogadores.map(j => ({ ...j, valor: porCota * j.cotas }));
   }
 
   // ── Cria card de jogo (mesma estrutura que teimosinha) ──
@@ -419,17 +439,24 @@ const CONFIG = {
     gamesContainer.appendChild(card);
   }
 
-  // ── HTML de detalhe por sorteio (mesma estrutura que criarHTMLDetalhe da teimosinha) ──
+  // ── HTML de detalhe por sorteio (exibe acertos e prêmio de cada sorteio) ──
 
   function criarHTMLDetalheSorteio(numSorteio, dezenasSorteadas, acertos, premio, dezenasDoJogo) {
+    const ganhou = acertos >= 3 && premio > 0;
     return `
       <div class="status-row">
         <div><strong>${numSorteio}º Sorteio</strong> · Acertos: <strong>${acertos}</strong></div>
+        <span class="status-pill ${ganhou ? "win" : ""}">
+          ${ganhou ? "Teve prêmio" : "Sem prêmio"}
+        </span>
       </div>
       <div class="numbers-row">
         ${dezenasSorteadas.map(n => `
           <span class="num-pill ${dezenasDoJogo.includes(n) ? "hit" : ""}">${n}</span>
         `).join("")}
+      </div>
+      <div class="small">
+        Prêmio neste sorteio: <strong>R$ ${formatMoney(premio)}</strong>
       </div>
     `;
   }
@@ -491,58 +518,82 @@ const CONFIG = {
 
   // ── Card de resumo global ──
 
-  function criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal) {
-    let card = document.getElementById("global-summary-card");
-    if (!card) {
-      card = document.createElement("div");
-      card.id = "global-summary-card";
-      card.className = "global-card";
-    }
-    card.innerHTML = `
-      <div class="global-title">🏆 Resumo Geral — Todos os Jogos</div>
+  function criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal, modo) {
+    const card = document.getElementById("global-summary-card");
+    if (!card) return;
+    card.style.display = "block";
 
-      <div class="prize-box" style="margin-top:0;">
-        <div class="prize-item">
-          <span class="prize-label">Total de Prêmios</span>
-          <span class="prize-value gold">R$ ${formatMoney(totalGeral)}</span>
+    if (modo === "aguardando") {
+      const concurso = CONCURSO_PASCOA || "—";
+      card.innerHTML = `
+        <div class="global-aguardando">
+          ⏸️ <strong>Aguardando sorteio</strong> · Concurso ${concurso} · Sorteio ainda não realizado. Volte após o sorteio!
         </div>
-        <div class="prize-item">
-          <span class="prize-label">Jogos com Prêmio</span>
-          <span class="prize-value">${jogosComPremio} de ${JOGOS.length}</span>
+
+        <div class="global-players">
+          <div class="section-title" style="margin:12px 0 10px;">Distribuição de Cotas</div>
+          <table class="players-table">
+            <thead>
+              <tr>
+                <th>Jogador</th>
+                <th style="text-align:center;">Cotas</th>
+                <th style="text-align:right;">Total Recebido</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${distribGlobal.filter(j => j.cotas > 0).map(j => `
+                <tr>
+                  <td>${j.nome}</td>
+                  <td style="text-align:center;">${j.cotas}</td>
+                  <td class="amount">R$ ${formatMoney(j.valor)}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
         </div>
+      `;
+      return;
+    }
+
+    card.innerHTML = `
+      <div class="global-card-row">
+        <span class="global-title">🏆 Resumo Geral</span>
+        <span class="global-sep">|</span>
+        <span class="global-stat">Total: <strong>R$ ${formatMoney(totalGeral)}</strong></span>
+        <span class="global-sep">|</span>
+        <span class="global-stat">Premiados: <strong>${jogosComPremio} de ${JOGOS.length}</strong></span>
       </div>
 
-      <div class="section-title" style="margin-top:16px;">Valor Total por Jogador</div>
-      <table class="players-table">
-        <thead>
-          <tr>
-            <th>Jogador</th>
-            <th style="text-align:center;">Cotas</th>
-            <th style="text-align:right;">Total</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${distribGlobal.map(j => `
+      <div class="global-players">
+        <div class="section-title" style="margin:0 0 10px;">Distribuição por Jogador</div>
+        <table class="players-table">
+          <thead>
             <tr>
-              <td>${j.nome}</td>
-              <td style="text-align:center;">${j.cotas}</td>
-              <td class="amount">R$ ${formatMoney(j.valor)}</td>
+              <th>Jogador</th>
+              <th style="text-align:center;">Cotas</th>
+              <th style="text-align:right;">Total Recebido</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${distribGlobal.filter(j => j.cotas > 0).map(j => `
+              <tr>
+                <td>${j.nome}</td>
+                <td style="text-align:center;">${j.cotas}</td>
+                <td class="amount">R$ ${formatMoney(j.valor)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
     `;
-    // Garante que o Resumo Geral fique sempre no topo
-    gamesContainer.insertBefore(card, gamesContainer.firstChild);
   }
 
   // ── Busca dados do concurso ──
 
   async function buscarDadosConcurso() {
     const url = CONCURSO_PASCOA
-      ? `https://api.guidi.dev.br/loteria/duplasena/${CONCURSO_PASCOA}`
-      : `https://api.guidi.dev.br/loteria/duplasena/ultimo`;
+      ? `https://servicebus2.caixa.gov.br/portaldeloterias/api/duplasena/${CONCURSO_PASCOA}`
+      : `https://servicebus2.caixa.gov.br/portaldeloterias/api/duplasena/`;
     for (let t = 0; t < 3; t++) {
       try {
         if (t > 0) await sleep(2000 * t);
@@ -564,7 +615,6 @@ const CONFIG = {
 
   async function conferirTodos() {
     loadingEl.style.display = "block";
-    criarCardResumoGlobal(0, 0, JOGADORES.map(j => ({ ...j, valor: 0 })));
     JOGOS.forEach(j => criarCardBase(j));
 
     let dados = null;
@@ -592,17 +642,14 @@ const CONFIG = {
         );
 
     if (!listaOk || dados?.status === "notfound") {
-      const concurso = dados?.numero || CONCURSO_PASCOA || "—";
-      const data     = dados?.dataApuracao ? formatarData(dados.dataApuracao) : null;
+      // Mensagem de aguardando exibida UMA vez apenas no resumo geral
+      criarCardResumoGlobal(0, 0, JOGADORES.map(j => ({ ...j, valor: 0 })), "aguardando");
+      // Nos cards individuais: oculta o status e a msg de loading (sem repetir)
       JOGOS.forEach(j => {
-        setStatusCard(j.id, "aguardando",
-          `⏸️ <strong>Aguardando sorteio</strong> · Concurso ${concurso}${data ? ` · Previsto: ${data}` : ""}`);
+        const statusEl = document.getElementById(`sorteio-status-${j.id}`);
+        if (statusEl) statusEl.style.display = "none";
         const msg = document.getElementById(`loading-msg-${j.id}`);
-        if (msg) {
-          msg.textContent = "⏸️ Sorteio ainda não realizado. Volte após o sorteio!";
-          msg.style.background = "#fef3c7";
-          msg.style.color = "#92400e";
-        }
+        if (msg) msg.style.display = "none";
       });
       return;
     }
@@ -657,8 +704,6 @@ const CONFIG = {
 
   window.addEventListener("load", () => conferirTodos());
 </script>
-</body>
-</html>
 ```
 
 ### 📄 LOT/icon.ico
@@ -666,14 +711,11 @@ const CONFIG = {
 [Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x80 in position 6: invalid start byte]
 ```
 
-<<<<<<< HEAD
 ### 📄 LOT/icon.png
 ```
 [Erro ao ler arquivo: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte]
 ```
 
-=======
->>>>>>> f1ac1979702d443353ebdba7c7dee2d609a57213
 ### 📄 LOT/index.html
 ```
 <!DOCTYPE html>
@@ -1072,11 +1114,45 @@ const CONFIG = {
 
   async function buscarConcursoAtual(modalidade) {
     try {
-      const resp = await fetch(`https://api.guidi.dev.br/loteria/${modalidade}/ultimo`);
+      const resp = await fetch(`https://servicebus2.caixa.gov.br/portaldeloterias/api/${modalidade}/`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       return data.numero || null;
     } catch(e) { console.error('Erro ao buscar concurso atual:', e); return null; }
+  }
+
+  function obterRetryAfterMs(resp) {
+    const retryAfter = resp.headers.get("Retry-After");
+    if (!retryAfter) return 1500;
+    const segundos = Number(retryAfter);
+    if (!Number.isNaN(segundos)) return segundos * 1000;
+    const data = Date.parse(retryAfter);
+    if (!Number.isNaN(data)) return Math.max(0, data - Date.now());
+    return 1500;
+  }
+
+  async function buscarComRetry(url, maxTentativas = 3) {
+    for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+      try {
+        const resp = await fetch(url);
+
+        if (resp.status === 429) {
+          if (tentativa === maxTentativas) return null;
+          const backoff = 500 * Math.pow(2, tentativa - 1);
+          await sleep(backoff + obterRetryAfterMs(resp));
+          continue;
+        }
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+      } catch (e) {
+        if (tentativa === maxTentativas) return null;
+        const backoff = 500 * Math.pow(2, tentativa - 1);
+        await sleep(backoff);
+      }
+    }
+
+    return null;
   }
 
   function calcularAcertos(dezenasSorteadas, minhasDezenas) {
@@ -1117,7 +1193,9 @@ const CONFIG = {
     return item && typeof item.valorPremio === "number" ? item.valorPremio : 0;
   }
 
-  function distribuirPorJogador(premioTotal, jogadores) {
+  function distribuirPorJogador(premioTotal, jogadores = []) {
+    // Se não passou jogadores, retorna vazio. Deve ser chamado com array válido.
+    if (!jogadores.length) return [];
     const totalCotas = jogadores.reduce((s, j) => s + j.cotas, 0);
     if (!totalCotas || !premioTotal) return jogadores.map(j => ({ ...j, valor: 0 }));
     const porCota = premioTotal / totalCotas;
@@ -1180,7 +1258,7 @@ const CONFIG = {
           </tr>
         </thead>
         <tbody>
-          ${jogo.jogadores.map(j => `
+          ${jogo.jogadores.filter(j => j.cotas > 0).map(j => `
             <tr>
               <td>${j.nome}</td>
               <td style="text-align:center;">${j.cotas}</td>
@@ -1244,8 +1322,9 @@ const CONFIG = {
 
   function atualizarJogadoresTabela(jogoId, jogadoresComValores) {
     const rows = Array.from(document.querySelectorAll(`#players-${jogoId} tbody tr`));
+    const jogadoresAtivos = jogadoresComValores.filter(j => j.cotas > 0);
     rows.forEach((tr, idx) => {
-      const j = jogadoresComValores[idx];
+      const j = jogadoresAtivos[idx];
       if (!j) return;
       tr.querySelector(".amount").textContent = `R$ ${formatMoney(j.valor)}`;
     });
@@ -1326,6 +1405,8 @@ const CONFIG = {
   async function conferirJogo(jogo) {
     let totalPremios = 0, concursosComPremio = 0, melhorAcerto = 0, concursosConferidos = 0;
     const MAX_TENTATIVAS = 3;
+    const TAMANHO_LOTE = 5;
+    const PAUSA_ENTRE_LOTES_MS = 300;
     let jogadoresAcumulado = jogo.jogadores.map(j => ({ ...j, valor: 0 }));
     concursosDetalhes[jogo.id] = [];
 
@@ -1345,29 +1426,36 @@ const CONFIG = {
       return;
     }
 
+    const concursosParaConferir = [];
     for (let i = qtde - 1; i >= 0; i--) {
-      const numeroConcurso = jogo.concursoInicial + i;
-      const isUltimo = (i === qtde - 1);
-      let sucesso = false;
+      concursosParaConferir.push({
+        numeroConcurso: jogo.concursoInicial + i,
+        isUltimo: i === qtde - 1
+      });
+    }
 
-      for (let t = 0; t < MAX_TENTATIVAS && !sucesso; t++) {
-        try {
-          if (t > 0) await sleep(2000 * t);
-          const resp = await fetch(`https://api.guidi.dev.br/loteria/${jogo.modalidade}/${numeroConcurso}`);
-          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          const data = await resp.json();
+    for (let i = 0; i < concursosParaConferir.length; i += TAMANHO_LOTE) {
+      const lote = concursosParaConferir.slice(i, i + TAMANHO_LOTE);
+
+      const promessas = lote.map(({ numeroConcurso, isUltimo }) => {
+        const url = `https://servicebus2.caixa.gov.br/portaldeloterias/api/${jogo.modalidade}/${numeroConcurso}`;
+
+        return buscarComRetry(url, MAX_TENTATIVAS).then(data => {
+          // Falha em todas as tentativas: ignora silenciosamente sem impactar o resumo.
+          if (!data) return;
 
           if (!data.listaDezenas) {
             adicionarDetalheConcurso(jogo.id, {
               numero: numeroConcurso, acertos: 0, premioTotal: 0,
               dezenasSorteadas: [], dezenasDoJogo: jogo.dezenas, dataApuracao: "Sem dados"
             }, isUltimo);
-            concursosConferidos++; sucesso = true; continue;
+            concursosConferidos++;
+            return;
           }
 
           const dezenasSorteadas = Array.isArray(data.listaDezenas[0]) ? data.listaDezenas[0] : data.listaDezenas;
-          const acertos          = calcularAcertos(dezenasSorteadas, jogo.dezenas);
-          const premio           = buscarPremioGenerico(data, acertos, jogo.modalidade);
+          const acertos = calcularAcertos(dezenasSorteadas, jogo.dezenas);
+          const premio = buscarPremioGenerico(data, acertos, jogo.modalidade);
 
           if (acertos > melhorAcerto) melhorAcerto = acertos;
           if (premio > 0 && acertos >= 11) concursosComPremio++;
@@ -1382,20 +1470,18 @@ const CONFIG = {
             dataApuracao: formatarData(data.dataApuracao)
           }, isUltimo);
 
-          concursosConferidos++; sucesso = true;
-        } catch(e) {
-          if (t === MAX_TENTATIVAS - 1) {
-            const details = document.getElementById(`details-${jogo.id}`);
-            if (details) {
-              const err = document.createElement("div");
-              err.className = "error";
-              err.textContent = `Erro no concurso ${numeroConcurso}: ${e.message}`;
-              details.appendChild(err);
-            }
-          }
-        }
+          concursosConferidos++;
+
+          atualizarResumo(jogo.id, { totalPremios, concursosComPremio, melhorAcerto, concursosConferidos });
+          atualizarJogadoresTabela(jogo.id, jogadoresAcumulado);
+          atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, concursosConferidos);
+        });
+      });
+
+      await Promise.allSettled(promessas);
+      if (i + TAMANHO_LOTE < concursosParaConferir.length) {
+        await sleep(PAUSA_ENTRE_LOTES_MS);
       }
-      await sleep(800 + Math.random() * 400);
     }
 
     atualizarResumo(jogo.id, { totalPremios, concursosComPremio, melhorAcerto, concursosConferidos });

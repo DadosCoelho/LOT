@@ -220,6 +220,7 @@
 </div>
 
 <!-- Carrega a configuração central antes da lógica -->
+<script src="api.js"></script>
 <script src="config.js"></script>
 <script>
   // Lê os dados do config central
@@ -230,8 +231,6 @@
   const concursosDetalhes = {};
 
   // ── Utilitários ──
-
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
   function formatMoney(v) {
     return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -249,49 +248,6 @@
       if (isNaN(d.getTime())) return dataStr;
       return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     } catch(e) { return dataStr; }
-  }
-
-  async function buscarConcursoAtual(modalidade) {
-    try {
-      const resp = await fetch(`https://servicebus2.caixa.gov.br/portaldeloterias/api/${modalidade}/`);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      return data.numero || null;
-    } catch(e) { console.error('Erro ao buscar concurso atual:', e); return null; }
-  }
-
-  function obterRetryAfterMs(resp) {
-    const retryAfter = resp.headers.get("Retry-After");
-    if (!retryAfter) return 1500;
-    const segundos = Number(retryAfter);
-    if (!Number.isNaN(segundos)) return segundos * 1000;
-    const data = Date.parse(retryAfter);
-    if (!Number.isNaN(data)) return Math.max(0, data - Date.now());
-    return 1500;
-  }
-
-  async function buscarComRetry(url, maxTentativas = 3) {
-    for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
-      try {
-        const resp = await fetch(url);
-
-        if (resp.status === 429) {
-          if (tentativa === maxTentativas) return null;
-          const backoff = 500 * Math.pow(2, tentativa - 1);
-          await sleep(backoff + obterRetryAfterMs(resp));
-          continue;
-        }
-
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return await resp.json();
-      } catch (e) {
-        if (tentativa === maxTentativas) return null;
-        const backoff = 500 * Math.pow(2, tentativa - 1);
-        await sleep(backoff);
-      }
-    }
-
-    return null;
   }
 
   function calcularAcertos(dezenasSorteadas, minhasDezenas) {
@@ -549,7 +505,15 @@
     let jogadoresAcumulado = jogo.jogadores.map(j => ({ ...j, valor: 0 }));
     concursosDetalhes[jogo.id] = [];
 
-    const concursoAtual = await buscarConcursoAtual(jogo.modalidade);
+    let concursoAtual = null;
+    try {
+      const ultimoConcurso = await ApiCaixa.buscarUltimoConcurso(jogo.modalidade, MAX_TENTATIVAS);
+      concursoAtual = ultimoConcurso && ultimoConcurso.status !== "notfound"
+        ? (ultimoConcurso.numero || null)
+        : null;
+    } catch (e) {
+      console.error('Erro ao buscar concurso atual:', e);
+    }
     const concursoFinal = jogo.concursoInicial + jogo.quantidadeTeimosinha - 1;
     let ultimoConcurso  = concursoFinal;
     if (concursoAtual !== null && concursoAtual < concursoFinal) ultimoConcurso = concursoAtual;
@@ -577,11 +541,9 @@
       const lote = concursosParaConferir.slice(i, i + TAMANHO_LOTE);
 
       const promessas = lote.map(({ numeroConcurso, isUltimo }) => {
-        const url = `https://servicebus2.caixa.gov.br/portaldeloterias/api/${jogo.modalidade}/${numeroConcurso}`;
-
-        return buscarComRetry(url, MAX_TENTATIVAS).then(data => {
+        return ApiCaixa.buscarConcurso(jogo.modalidade, numeroConcurso, MAX_TENTATIVAS).then(data => {
           // Falha em todas as tentativas: ignora silenciosamente sem impactar o resumo.
-          if (!data) return;
+          if (!data || data.status === "notfound") return;
 
           if (!data.listaDezenas) {
             adicionarDetalheConcurso(jogo.id, {
@@ -614,12 +576,12 @@
           atualizarResumo(jogo.id, { totalPremios, concursosComPremio, melhorAcerto, concursosConferidos });
           atualizarJogadoresTabela(jogo.id, jogadoresAcumulado);
           atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, concursosConferidos);
-        });
+        }).catch(() => null);
       });
 
       await Promise.allSettled(promessas);
       if (i + TAMANHO_LOTE < concursosParaConferir.length) {
-        await sleep(PAUSA_ENTRE_LOTES_MS);
+        await ApiCaixa.sleep(PAUSA_ENTRE_LOTES_MS);
       }
     }
 
