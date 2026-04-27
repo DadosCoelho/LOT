@@ -260,6 +260,40 @@
     } catch(e) { console.error('Erro ao buscar concurso atual:', e); return null; }
   }
 
+  function obterRetryAfterMs(resp) {
+    const retryAfter = resp.headers.get("Retry-After");
+    if (!retryAfter) return 1500;
+    const segundos = Number(retryAfter);
+    if (!Number.isNaN(segundos)) return segundos * 1000;
+    const data = Date.parse(retryAfter);
+    if (!Number.isNaN(data)) return Math.max(0, data - Date.now());
+    return 1500;
+  }
+
+  async function buscarComRetry(url, maxTentativas = 3) {
+    for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+      try {
+        const resp = await fetch(url);
+
+        if (resp.status === 429) {
+          if (tentativa === maxTentativas) return null;
+          const backoff = 500 * Math.pow(2, tentativa - 1);
+          await sleep(backoff + obterRetryAfterMs(resp));
+          continue;
+        }
+
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+      } catch (e) {
+        if (tentativa === maxTentativas) return null;
+        const backoff = 500 * Math.pow(2, tentativa - 1);
+        await sleep(backoff);
+      }
+    }
+
+    return null;
+  }
+
   function calcularAcertos(dezenasSorteadas, minhasDezenas) {
     return minhasDezenas.filter(d => dezenasSorteadas.includes(d)).length;
   }
@@ -510,6 +544,8 @@
   async function conferirJogo(jogo) {
     let totalPremios = 0, concursosComPremio = 0, melhorAcerto = 0, concursosConferidos = 0;
     const MAX_TENTATIVAS = 3;
+    const TAMANHO_LOTE = 5;
+    const PAUSA_ENTRE_LOTES_MS = 300;
     let jogadoresAcumulado = jogo.jogadores.map(j => ({ ...j, valor: 0 }));
     concursosDetalhes[jogo.id] = [];
 
@@ -529,29 +565,36 @@
       return;
     }
 
+    const concursosParaConferir = [];
     for (let i = qtde - 1; i >= 0; i--) {
-      const numeroConcurso = jogo.concursoInicial + i;
-      const isUltimo = (i === qtde - 1);
-      let sucesso = false;
+      concursosParaConferir.push({
+        numeroConcurso: jogo.concursoInicial + i,
+        isUltimo: i === qtde - 1
+      });
+    }
 
-      for (let t = 0; t < MAX_TENTATIVAS && !sucesso; t++) {
-        try {
-          if (t > 0) await sleep(2000 * t);
-          const resp = await fetch(`https://servicebus2.caixa.gov.br/portaldeloterias/api/${jogo.modalidade}/${numeroConcurso}`);
-          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          const data = await resp.json();
+    for (let i = 0; i < concursosParaConferir.length; i += TAMANHO_LOTE) {
+      const lote = concursosParaConferir.slice(i, i + TAMANHO_LOTE);
+
+      const promessas = lote.map(({ numeroConcurso, isUltimo }) => {
+        const url = `https://servicebus2.caixa.gov.br/portaldeloterias/api/${jogo.modalidade}/${numeroConcurso}`;
+
+        return buscarComRetry(url, MAX_TENTATIVAS).then(data => {
+          // Falha em todas as tentativas: ignora silenciosamente sem impactar o resumo.
+          if (!data) return;
 
           if (!data.listaDezenas) {
             adicionarDetalheConcurso(jogo.id, {
               numero: numeroConcurso, acertos: 0, premioTotal: 0,
               dezenasSorteadas: [], dezenasDoJogo: jogo.dezenas, dataApuracao: "Sem dados"
             }, isUltimo);
-            concursosConferidos++; sucesso = true; continue;
+            concursosConferidos++;
+            return;
           }
 
           const dezenasSorteadas = Array.isArray(data.listaDezenas[0]) ? data.listaDezenas[0] : data.listaDezenas;
-          const acertos          = calcularAcertos(dezenasSorteadas, jogo.dezenas);
-          const premio           = buscarPremioGenerico(data, acertos, jogo.modalidade);
+          const acertos = calcularAcertos(dezenasSorteadas, jogo.dezenas);
+          const premio = buscarPremioGenerico(data, acertos, jogo.modalidade);
 
           if (acertos > melhorAcerto) melhorAcerto = acertos;
           if (premio > 0 && acertos >= 11) concursosComPremio++;
@@ -566,20 +609,18 @@
             dataApuracao: formatarData(data.dataApuracao)
           }, isUltimo);
 
-          concursosConferidos++; sucesso = true;
-        } catch(e) {
-          if (t === MAX_TENTATIVAS - 1) {
-            const details = document.getElementById(`details-${jogo.id}`);
-            if (details) {
-              const err = document.createElement("div");
-              err.className = "error";
-              err.textContent = `Erro no concurso ${numeroConcurso}: ${e.message}`;
-              details.appendChild(err);
-            }
-          }
-        }
+          concursosConferidos++;
+
+          atualizarResumo(jogo.id, { totalPremios, concursosComPremio, melhorAcerto, concursosConferidos });
+          atualizarJogadoresTabela(jogo.id, jogadoresAcumulado);
+          atualizarStatusTeimosinha(jogo.id, concursoAtual, jogo, concursosConferidos);
+        });
+      });
+
+      await Promise.allSettled(promessas);
+      if (i + TAMANHO_LOTE < concursosParaConferir.length) {
+        await sleep(PAUSA_ENTRE_LOTES_MS);
       }
-      await sleep(800 + Math.random() * 400);
     }
 
     atualizarResumo(jogo.id, { totalPremios, concursosComPremio, melhorAcerto, concursosConferidos });
