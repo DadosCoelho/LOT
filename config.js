@@ -95,7 +95,7 @@ const CONFIG = {
       modalidade: "lotofacil",
 
       // Data do sorteio (ou primeiro sorteio, para teimosinha) — formato DD/MM/AAAA
-      dataRealizacao: "09/05/2026",
+      dataRealizacao: "06/05/2026",
 
       // Valor total pago pelo jogo e quantidade de cotas disponíveis
       // O valor por cota será calculado automaticamente: valorTotal / quantidadeCotas
