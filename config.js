@@ -11,14 +11,17 @@ const CONFIG = {
      TEIMOSINHA — LOTOFÁCIL
   ────────────────────────────────────────── */
   lotofacilTeimosinha: {
+    // visivel: true  → mostra o card na página inicial
+    // visivel: false → esconde o card
+    visivel: true,
     JOGOS: [
       {
         id: 2,
         nomeGrupo: "Lotofácil",
         modalidade: "lotofacil",
-        concursoInicial: 3651,
+        concursoInicial: 3678,
         quantidadeTeimosinha: 24,
-        dezenas: ["02","03","05","06","09","10","11","12","15","16","19","21","22","23","25"],
+        dezenas: ["02","03","05","06","07","09","10","12","14","18","19","20","22","23","25"],
         jogadores: [
           { nome: "Reinaldo", cotas: 20 },
           { nome: "Rafael",   cotas: 0 },
@@ -37,6 +40,9 @@ const CONFIG = {
      DUPLA DE PÁSCOA 2026
   ────────────────────────────────────────── */
   duplaPascoa: {
+    // visivel: true  → mostra o card na página inicial
+    // visivel: false → esconde o card
+    visivel: false,
 
     // Número do concurso. Deixe null para buscar o último automaticamente.
     CONCURSO: 2940,
@@ -70,6 +76,56 @@ const CONFIG = {
       { id: 9, nome: "Dupla de Pascoa 9", dezenas: ["02","04","15","24","25","50"] },
       { id: 10, nome: "Dupla de Pascoa 10", dezenas: ["17","36","37","38","47","50"] }
       // Para adicionar mais jogos, copie uma linha acima e incremente o id.
+    ]
+  },
+
+  /* ──────────────────────────────────────────
+     PRÓXIMOS JOGOS — exibidos no index como cards informativos
+     Cada item da lista é um card independente.
+     visivel: true  → mostra o card na página inicial
+     visivel: false → esconde o card
+     Para adicionar um novo jogo, copie um bloco abaixo e ajuste os valores.
+  ────────────────────────────────────────── */
+  proximosJogos: [
+    {
+      visivel: true,
+
+      // Qual jogo será realizado
+      nomeJogo: "Lotofácil",
+      modalidade: "lotofacil",
+
+      // Data do sorteio (ou primeiro sorteio, para teimosinha) — formato DD/MM/AAAA
+      dataRealizacao: "09/05/2026",
+
+      // Valor total pago pelo jogo e quantidade de cotas disponíveis
+      // O valor por cota será calculado automaticamente: valorTotal / quantidadeCotas
+      valorTotal: 84.00,
+      quantidadeCotas: 20,
+
+      // "simples" = apenas um concurso | "teimosinha" = vários concursos seguidos
+      tipo: "teimosinha",
+      // Número de concursos (preenchido apenas quando tipo = "teimosinha")
+      quantidadeConcursos: 24
+    }
+    // Para adicionar outro jogo, copie o bloco acima separado por vírgula.
+  ],
+
+  /* ──────────────────────────────────────────
+     SALDOS DOS JOGADORES — prêmios de jogos anteriores
+     visivel: true  → mostra o card na página inicial
+     visivel: false → esconde o card
+  ────────────────────────────────────────── */
+  saldos: {
+    visivel: true,
+    jogadores: [
+      { nome: "Reinaldo", saldo: 1.40 },
+      { nome: "Rafael",   saldo: 1.40 },
+      { nome: "Luno",     saldo: 0.70 },
+      { nome: "Ana",      saldo: 0.70 },
+      { nome: "Ricardo",  saldo: 0.70 },
+      { nome: "Osmar",    saldo: 0.70 },
+      { nome: "Vinicius", saldo: 0.70 },
+      { nome: "Herika",   saldo: 0.70 }
     ]
   }
 

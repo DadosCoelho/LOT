@@ -80,6 +80,61 @@
     .card-arrow  { font-size: 1.4rem; flex-shrink: 0; transition: transform 0.2s; }
     .lottery-card:hover .card-arrow { transform: translateX(4px); }
 
+    /* ── Cards informativos (não clicáveis) ── */
+    .info-card {
+      border-radius: 14px; padding: 18px 20px;
+      border: 2px solid transparent;
+    }
+
+    /* Card – Próximo Jogo */
+    .card-proximo {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border-color: #fcd34d;
+    }
+    .card-proximo .info-card-title { color: #92400e; }
+
+    /* Card – Saldos */
+    .card-saldos {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border-color: #93c5fd;
+    }
+    .card-saldos .info-card-title { color: #1e3a8a; }
+
+    .info-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .info-card-title { font-size: 1.0rem; font-weight: 700; }
+
+    .info-badge {
+      font-size: 0.7rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-teimosinha { background: #d1fae5; color: #065f46; }
+    .badge-simples    { background: #fee2e2; color: #991b1b; }
+
+    .info-row {
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 0.83rem; color: #475569; margin-bottom: 6px;
+    }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-label { font-weight: 600; white-space: nowrap; }
+    .info-value { color: #1e293b; }
+
+    /* tabela de saldos */
+    .saldo-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .saldo-table th, .saldo-table td {
+      text-align: left; padding: 5px 8px; font-size: 0.82rem;
+    }
+    .saldo-table th { color: #64748b; font-weight: 600; border-bottom: 1px solid #bfdbfe; }
+    .saldo-table tr:not(:first-child) td { border-top: 1px solid #e0ecff; }
+    .saldo-positivo { color: #16a34a; font-weight: 700; }
+    .saldo-zero     { color: #94a3b8; }
+    .saldo-negativo { color: #dc2626; font-weight: 700; }
+
+    /* Wrappers dinâmicos: transparentes para o layout flex do .content */
+    #cards-jogos, #card-proximo-jogo, #card-saldos { display: contents; }
+
     .footer {
       text-align: center; padding: 16px; font-size: 0.78rem;
       color: #94a3b8; border-top: 1px solid #f1f5f9;
@@ -113,25 +168,122 @@
       <p>Acompanhe nossos jogos da loteria!</p>
     </div>
 
-    <div class="content">
-      <a class="lottery-card card-teimosinha" href="lotofacil-teimosinha.html">
-        <div class="card-body">
-          <div class="card-title">Lotofácil - Teimosinha</div>
-          <div class="card-desc">Acompanhamento da teimosinha</div>
-        </div>
-        <div class="card-arrow">›</div>
-      </a>
+    <div class="content" id="content">
+      <!-- Cards de jogos existentes (visíveis conforme config.js) -->
+      <div id="cards-jogos"></div>
 
-      <a class="lottery-card card-pascoa" href="dupla-pascoa.html">
-        <div class="card-body">
-          <div class="card-title">Dupla de Páscoa 2026</div>
-          <div class="card-desc">Sorteio especial de abril</div>
-        </div>
-        <div class="card-arrow">›</div>
-      </a>
+      <!-- Cards: Próximos Jogos (Task 1 / Task 4) -->
+      <div id="card-proximo-jogo"></div>
+
+      <!-- Card: Saldos dos Jogadores (Task 2) -->
+      <div id="card-saldos"></div>
     </div>
 
     <div class="footer">LOTERIAS · Projeto pessoal de acompanhamento de loterias</div>
   </div>
+
+  <script src="config.js"></script>
+  <script>
+    /* ── Jogos existentes (visíveis via visivel no config) ── */
+    (function () {
+      const container = document.getElementById("cards-jogos");
+      const jogos = [
+        {
+          cfg: CONFIG.lotofacilTeimosinha,
+          href: "lotofacil-teimosinha.html",
+          classe: "card-teimosinha",
+          titulo: "Lotofácil - Teimosinha",
+          desc: "Acompanhamento da teimosinha"
+        },
+        {
+          cfg: CONFIG.duplaPascoa,
+          href: "dupla-pascoa.html",
+          classe: "card-pascoa",
+          titulo: "Dupla de Páscoa 2026",
+          desc: "Sorteio especial de abril"
+        }
+      ];
+
+      jogos.forEach(function (j) {
+        if (!j.cfg || j.cfg.visivel === false) return;
+        const a = document.createElement("a");
+        a.className = "lottery-card " + j.classe;
+        a.href = j.href;
+        a.innerHTML = `
+          <div class="card-body">
+            <div class="card-title">${j.titulo}</div>
+            <div class="card-desc">${j.desc}</div>
+          </div>
+          <div class="card-arrow">›</div>`;
+        container.appendChild(a);
+      });
+    })();
+
+    /* ── Próximos Jogos (array) ── */
+    (function () {
+      const lista = CONFIG.proximosJogos;
+      if (!lista || !lista.length) return;
+      const container = document.getElementById("card-proximo-jogo");
+
+      const modalidadeNome = {
+        lotofacil: "Lotofácil",
+        megasena: "Mega-Sena",
+        quina: "Quina",
+        duplasena: "Dupla Sena",
+        lotomania: "Lotomania"
+      };
+
+      lista.forEach(function (cfg) {
+        if (!cfg.visivel) return;
+
+        const valorCota = (cfg.valorTotal / cfg.quantidadeCotas).toFixed(2).replace(".", ",");
+        const valorTotal = cfg.valorTotal.toFixed(2).replace(".", ",");
+        const tipoLabel = cfg.tipo === "teimosinha"
+          ? `Teimosinha (${cfg.quantidadeConcursos} concursos)`
+          : "Simples (1 concurso)";
+        const badgeClass = cfg.tipo === "teimosinha" ? "badge-teimosinha" : "badge-simples";
+        const nomeExibido = modalidadeNome[cfg.modalidade] || cfg.nomeJogo;
+
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <div class="info-card card-proximo">
+            <div class="info-card-header">
+              <span class="info-card-title">🎯 Próximo Jogo</span>
+              <span class="info-badge ${badgeClass}">${cfg.tipo === "teimosinha" ? "Teimosinha" : "Simples"}</span>
+            </div>
+            <div class="info-row"><span class="info-label">Jogo:</span><span class="info-value">${nomeExibido}</span></div>
+            <div class="info-row"><span class="info-label">Data:</span><span class="info-value">${cfg.dataRealizacao}</span></div>
+            <div class="info-row"><span class="info-label">Valor por cota:</span><span class="info-value">R$ ${valorCota} <span style="color:#94a3b8;font-size:0.78rem;">(R$ ${valorTotal} ÷ ${cfg.quantidadeCotas} cotas)</span></span></div>
+            <div class="info-row"><span class="info-label">Modalidade:</span><span class="info-value">${tipoLabel}</span></div>
+          </div>`;
+        container.appendChild(div.firstElementChild);
+      });
+    })();
+
+    /* ── Saldos ── */
+    (function () {
+      const cfg = CONFIG.saldos;
+      if (!cfg || !cfg.visivel) return;
+
+      const rows = cfg.jogadores
+        .map(j => {
+          const cls = j.saldo > 0 ? "saldo-positivo" : j.saldo < 0 ? "saldo-negativo" : "saldo-zero";
+          const valor = j.saldo.toFixed(2).replace(".", ",");
+          return `<tr><td>${j.nome}</td><td class="${cls}">R$ ${valor}</td></tr>`;
+        })
+        .join("");
+
+      document.getElementById("card-saldos").innerHTML = `
+        <div class="info-card card-saldos">
+          <div class="info-card-header">
+            <span class="info-card-title">💰 Saldo dos Jogadores</span>
+          </div>
+          <table class="saldo-table">
+            <thead><tr><th>Jogador</th><th>Saldo</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    })();
+  </script>
 </body>
 </html>
