@@ -29,6 +29,12 @@
           return { status: "notfound" };
         }
 
+        // A API da Caixa retorna 500 quando o sorteio ainda não foi processado.
+        // Tratamos como "não encontrado" para exibir "Aguardando sorteio" nas páginas.
+        if (resp.status === 500) {
+          return { status: "notfound" };
+        }
+
         if (resp.status === 429) {
           if (tentativa === maxTentativas) {
             throw new Error("HTTP 429");

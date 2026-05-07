@@ -73,6 +73,16 @@
     .card-pascoa .card-title { color: #581c87; }
     .card-pascoa .card-arrow { color: #a855f7; }
 
+    .card-megasena { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #6ee7b7; }
+    .card-megasena:hover { border-color: #059669; box-shadow: 0 6px 20px rgba(5,150,105,0.2); transform: translateY(-2px); }
+    .card-megasena .card-title { color: #065f46; }
+    .card-megasena .card-arrow { color: #059669; }
+
+    .card-lotofacil { background: linear-gradient(135deg, #fff7ed, #ffedd5); border-color: #fdba74; }
+    .card-lotofacil:hover { border-color: #ea580c; box-shadow: 0 6px 20px rgba(234,88,12,0.2); transform: translateY(-2px); }
+    .card-lotofacil .card-title { color: #7c2d12; }
+    .card-lotofacil .card-arrow { color: #ea580c; }
+
     .card-body { flex: 1; min-width: 0; }
     .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 3px; }
     .card-desc  { font-size: 0.82rem; color: #64748b; line-height: 1.4; }
@@ -201,6 +211,20 @@
           classe: "card-pascoa",
           titulo: "Dupla de Páscoa 2026",
           desc: "Sorteio especial de abril"
+        },
+        {
+          cfg: CONFIG.megaSena,
+          href: "mega-sena.html",
+          classe: "card-megasena",
+          titulo: "Mega Sena",
+          desc: "Acompanhamento da Mega Sena"
+        },
+        {
+          cfg: CONFIG.lotofacil,
+          href: "lotofacil.html",
+          classe: "card-lotofacil",
+          titulo: "Lotofácil",
+          desc: "Acompanhamento da Lotofácil"
         }
       ];
 
@@ -243,6 +267,20 @@
           : "Simples (1 concurso)";
         const badgeClass = cfg.tipo === "teimosinha" ? "badge-teimosinha" : "badge-simples";
         const nomeExibido = modalidadeNome[cfg.modalidade] || cfg.nomeJogo;
+        const bolaoLabel = cfg.bolao ? " <span style=\"background:#dbeafe;color:#1e40af;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:10px;\">Bolão</span>" : "";
+        const bolaoRow = (cfg.bolao && cfg.cotaBolaoNumerador && cfg.cotaBalaoDenominador)
+          ? (() => {
+              const fracaoGrupo = cfg.cotaBolaoNumerador / cfg.cotaBalaoDenominador;
+              const premioGrupo = cfg.premioEstimado ? cfg.premioEstimado * fracaoGrupo : null;
+              const premioGrupoStr = premioGrupo
+                ? ` → grupo receberia <strong>R$ ${premioGrupo.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`
+                : "";
+              return `<div class="info-row"><span class="info-label">Cota do bolão:</span><span class="info-value">${cfg.cotaBolaoNumerador}/${cfg.cotaBalaoDenominador}${premioGrupoStr}</span></div>`;
+            })()
+          : "";
+        const premioRow = cfg.premioEstimado
+          ? `<div class="info-row"><span class="info-label">Prêmio estimado:</span><span class="info-value" style="color:#16a34a;font-weight:700;">R$ ${cfg.premioEstimado.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>`
+          : "";
 
         const div = document.createElement("div");
         div.innerHTML = `
@@ -251,10 +289,12 @@
               <span class="info-card-title">🎯 Próximo Jogo</span>
               <span class="info-badge ${badgeClass}">${cfg.tipo === "teimosinha" ? "Teimosinha" : "Simples"}</span>
             </div>
-            <div class="info-row"><span class="info-label">Jogo:</span><span class="info-value">${nomeExibido}</span></div>
+            <div class="info-row"><span class="info-label">Jogo:</span><span class="info-value">${nomeExibido}${bolaoLabel}</span></div>
             <div class="info-row"><span class="info-label">Data:</span><span class="info-value">${cfg.dataRealizacao}</span></div>
             <div class="info-row"><span class="info-label">Valor por cota:</span><span class="info-value">R$ ${valorCota} <span style="color:#94a3b8;font-size:0.78rem;">(R$ ${valorTotal} ÷ ${cfg.quantidadeCotas} cotas)</span></span></div>
             <div class="info-row"><span class="info-label">Modalidade:</span><span class="info-value">${tipoLabel}</span></div>
+            ${bolaoRow}
+            ${premioRow}
           </div>`;
         container.appendChild(div.firstElementChild);
       });
