@@ -88,7 +88,7 @@ const CONFIG = {
   ────────────────────────────────────────── */
   proximosJogos: [
     {
-      visivel: true,
+      visivel: false,
 
       // Qual jogo será realizado
       nomeJogo: "Lotofácil",
@@ -116,7 +116,7 @@ const CONFIG = {
      visivel: false → esconde o card
   ────────────────────────────────────────── */
   saldos: {
-    visivel: true,
+    visivel: false,
     jogadores: [
       { nome: "Rafael",   saldo: 1.40 },
       { nome: "Luno",     saldo: 0.70 },
