@@ -73,7 +73,17 @@ const CONFIG = {
       { id: 8, nome: "Lotofácil 8", dezenas: ["03","05","06","07","10","11","12","14","15","16","17","18","19","23","24"] },
       { id: 9, nome: "Lotofácil 9", dezenas: ["01","03","04","06","08","09","10","12","16","17","19","20","22","23","25"] }
       // Para adicionar mais jogos, copie uma linha acima e incremente o id.
-    ]
+    ],
+
+    // bolao: true  → as apostas abaixo são cotas de um bolão externo
+    // bolao: false → apostas individuais (sem fração)
+    bolao: true,
+
+    // Fração que o grupo possui do bolão.
+    // Ex: numerador=1, denominador=6 → o grupo comprou 1 de 6 cotas do bolão.
+    // Ignorado quando bolao = false.
+    cotaBolaoNumerador: 1,
+    cotaBalaoDenominador: 6
   },
 
   /* ──────────────────────────────────────────
@@ -105,7 +115,17 @@ const CONFIG = {
     JOGOS: [
       { id: 1, nome: "Mega Sena 1", dezenas: ["04","06","17","24","38","51"] }
       // Para adicionar mais jogos, copie uma linha acima e incremente o id.
-    ]
+    ],
+
+    // bolao: true  → as apostas abaixo são cotas de um bolão externo
+    // bolao: false → apostas individuais (sem fração)
+    bolao: false,
+
+    // Fração que o grupo possui do bolão.
+    // Ex: numerador=1, denominador=6 → o grupo comprou 1 de 6 cotas do bolão.
+    // Ignorado quando bolao = false.
+    cotaBolaoNumerador: 1,
+    cotaBalaoDenominador: 1
   },
 
   /* ──────────────────────────────────────────

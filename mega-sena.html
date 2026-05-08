@@ -242,9 +242,14 @@
 <script src="api.js"></script>
 <script src="config.js"></script>
 <script>
-  const CONCURSO_MEGA = CONFIG.megaSena.CONCURSO;
-  const JOGADORES     = CONFIG.megaSena.JOGADORES;
-  const JOGOS         = CONFIG.megaSena.JOGOS;
+  const CONCURSO_MEGA  = CONFIG.megaSena.CONCURSO;
+  const JOGADORES      = CONFIG.megaSena.JOGADORES;
+  const JOGOS          = CONFIG.megaSena.JOGOS;
+  const BOLAO          = CONFIG.megaSena.bolao || false;
+  const BOLAO_NUMERADOR    = CONFIG.megaSena.cotaBolaoNumerador || 1;
+  const BOLAO_DENOMINADOR  = CONFIG.megaSena.cotaBalaoDenominador || 1;
+  // Fração do prêmio que cabe ao grupo (1 se não for bolão)
+  const FRACAO_BOLAO       = BOLAO ? (BOLAO_NUMERADOR / BOLAO_DENOMINADOR) : 1;
 
   const gamesContainer = document.getElementById("gamesContainer");
   const loadingEl      = document.getElementById("loading");
@@ -310,7 +315,7 @@
     card.innerHTML = `
       <div class="game-header">
         <div class="game-title">${jogo.nome}</div>
-        <div class="subtitle">Mega Sena · ${jogo.dezenas.length} dezenas apostadas</div>
+        <div class="subtitle">Mega Sena · ${jogo.dezenas.length} dezenas apostadas${BOLAO ? ` · <span style="background:#dbeafe;color:#1e40af;font-size:0.7rem;font-weight:700;padding:1px 7px;border-radius:8px;vertical-align:middle;">Bolão ${BOLAO_NUMERADOR}/${BOLAO_DENOMINADOR}</span>` : ""}</div>
       </div>
 
       <div id="sorteio-status-${jogo.id}" class="sorteio-status">
@@ -334,7 +339,7 @@
 
   // ── Renderiza resultado de um jogo ──
 
-  function renderizarResultadoJogo(jogo, dezenasSorteadas, premio) {
+  function renderizarResultadoJogo(jogo, dezenasSorteadas, premio, premioTotal) {
     const acertos = calcularAcertos(dezenasSorteadas, jogo.dezenas);
 
     // Atualiza dezenas com highlights
@@ -365,7 +370,7 @@
           `).join("")}
         </div>
         <div class="small">
-          Prêmio: <strong>R$ ${formatMoney(premio)}</strong>
+          Prêmio: <strong>R$ ${formatMoney(premio)}</strong>${(BOLAO && premioTotal != null && premioTotal !== premio) ? ` <span style="color:#64748b;font-size:0.82em;">(bolão: R$ ${formatMoney(premioTotal)} · cota ${BOLAO_NUMERADOR}/${BOLAO_DENOMINADOR})</span>` : ""}
         </div>
       `;
       detailsEl.appendChild(wrapper);
@@ -504,17 +509,19 @@
     for (const jogo of JOGOS) {
       const acertos = calcularAcertos(dezenasSorteadas, jogo.dezenas);
       const premio  = buscarPremioMegaSena(dados, acertos);
+      // Aplica a fração do bolão (ex: 1/6); se não for bolão, FRACAO_BOLAO = 1
+      const premioGrupo = premio * FRACAO_BOLAO;
 
-      if (premio > 0) jogosComPremio++;
-      totalGeral += premio;
+      if (premioGrupo > 0) jogosComPremio++;
+      totalGeral += premioGrupo;
 
-      const distrib = distribuirPorJogador(premio);
+      const distrib = distribuirPorJogador(premioGrupo);
       distribGlobal = distribGlobal.map((g, i) => ({ ...g, valor: g.valor + distrib[i].valor }));
 
       setStatusCard(jogo.id, "realizado",
         `✅ <strong>Sorteio realizado!</strong> · Concurso ${concurso} · Data: ${dataStr}`);
 
-      renderizarResultadoJogo(jogo, dezenasSorteadas, premio);
+      renderizarResultadoJogo(jogo, dezenasSorteadas, premioGrupo, premio);
     }
 
     criarCardResumoGlobal(totalGeral, jogosComPremio, distribGlobal);
