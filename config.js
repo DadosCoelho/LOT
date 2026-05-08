@@ -223,13 +223,13 @@ const CONFIG = {
   saldos: {
     visivel: true,
     jogadores: [
-      { nome: "Rafael",   saldo: 1.40 },
-      { nome: "Luno",     saldo: 0.70 },
-      { nome: "Ana",      saldo: 0.70 },
-      { nome: "Ricardo",  saldo: 0.70 },
-      { nome: "Osmar",    saldo: 0.70 },
-      { nome: "Vinicius", saldo: 0.70 },
-      { nome: "Herika",   saldo: 0.70 }
+      { nome: "Rafael",   saldo: 0.23 },
+      { nome: "Luno",     saldo: 0.12 },
+      { nome: "Ana",      saldo: 0.12 },
+      { nome: "Ricardo",  saldo: 0.12 },
+      { nome: "Osmar",    saldo: 0.12 },
+      { nome: "Vinicius", saldo: 0.12 },
+      { nome: "Herika",   saldo: 0.12 }
     ]
   }
 
