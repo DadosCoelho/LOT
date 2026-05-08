@@ -180,7 +180,7 @@ const CONFIG = {
   ────────────────────────────────────────── */
   proximosJogos: [
     {
-      visivel: true,
+      visivel: false,
 
       // Qual jogo será realizado
       nomeJogo: "Lotofácil",
