@@ -156,6 +156,19 @@
       .lottery-card { padding: 15px 14px; }
       .card-title { font-size: 0.98rem; }
     }
+
+    /* ── Status badges nos cards de jogos ── */
+    .card-status {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px;
+      margin-top: 5px;
+    }
+    .card-status-loading    { background: #f1f5f9; color: #94a3b8; }
+    .card-status-aguardando { background: #fef3c7; color: #92400e; }
+    .card-status-andamento  { background: #e0f2fe; color: #0369a1; }
+    .card-status-sem-premio { background: #fee2e2; color: #991b1b; }
+    .card-status-premiado   { background: #dcfce7; color: #166534; }
   </style>
 </head>
 <body>
@@ -192,6 +205,7 @@
     <div class="footer">LOTERIAS · Projeto pessoal de acompanhamento de loterias</div>
   </div>
 
+  <script src="api.js"></script>
   <script src="config.js"></script>
   <script>
     /* ── Jogos existentes (visíveis via visivel no config) ── */
@@ -203,30 +217,40 @@
           href: "lotofacil-teimosinha.html",
           classe: "card-teimosinha",
           titulo: "Lotofácil - Teimosinha",
-          desc: "Acompanhamento da teimosinha"
+          desc: "Acompanhamento da teimosinha",
+          statusKey: "teimosinha",
+          statusTipo: "teimosinha"
         },
         {
           cfg: CONFIG.duplaPascoa,
           href: "dupla-pascoa.html",
           classe: "card-pascoa",
           titulo: "Dupla de Páscoa 2026",
-          desc: "Sorteio especial de abril"
+          desc: "Sorteio especial de abril",
+          statusKey: "pascoa",
+          statusTipo: "duplasena"
         },
         {
           cfg: CONFIG.megaSena,
           href: "mega-sena.html",
           classe: "card-megasena",
           titulo: "Mega Sena",
-          desc: "Acompanhamento da Mega Sena"
+          desc: "Acompanhamento da Mega Sena",
+          statusKey: "megasena",
+          statusTipo: "megasena"
         },
         {
           cfg: CONFIG.lotofacil,
           href: "lotofacil.html",
           classe: "card-lotofacil",
           titulo: "Lotofácil",
-          desc: "Acompanhamento da Lotofácil"
+          desc: "Acompanhamento da Lotofácil",
+          statusKey: "lotofacil",
+          statusTipo: "lotofacil"
         }
       ];
+
+      const jogosVisiveis = [];
 
       jogos.forEach(function (j) {
         if (!j.cfg || j.cfg.visivel === false) return;
@@ -237,9 +261,109 @@
           <div class="card-body">
             <div class="card-title">${j.titulo}</div>
             <div class="card-desc">${j.desc}</div>
+            <span class="card-status card-status-loading" id="status-${j.statusKey}">⏳ verificando...</span>
           </div>
           <div class="card-arrow">›</div>`;
         container.appendChild(a);
+        jogosVisiveis.push(j);
+      });
+
+      // ── Consulta status de cada jogo via API (assíncrono, não bloqueia o render) ──
+      if (!window.ApiCaixa || !jogosVisiveis.length) return;
+
+      function _acertos(sorteadas, minhas) {
+        return minhas.filter(function(d) { return sorteadas.includes(d); }).length;
+      }
+      function _premioFaixa(rateioPremio, faixa) {
+        if (!rateioPremio || !faixa) return 0;
+        const it = rateioPremio.find(function(i) { return i.faixa === faixa; });
+        return it && typeof it.valorPremio === "number" ? it.valorPremio : 0;
+      }
+      function _premioLotofacil(dados, dezenas) {
+        const ac = _acertos(dados.listaDezenas, dezenas);
+        if (ac < 11) return 0;
+        return _premioFaixa(dados.listaRateioPremio, ({15:1,14:2,13:3,12:4,11:5})[ac]);
+      }
+      function _premioMegaSena(dados, dezenas) {
+        const ac = _acertos(dados.listaDezenas, dezenas);
+        if (ac < 4) return 0;
+        return _premioFaixa(dados.listaRateioPremio, ({6:1,5:2,4:3})[ac]);
+      }
+      function _premioDuplaSena(dados, dezenas) {
+        let total = 0;
+        const fm = {6:1,5:2,4:3,3:4};
+        if (dados.listaDezenas) {
+          const ac = _acertos(dados.listaDezenas, dezenas);
+          if (ac >= 3) total += _premioFaixa(dados.listaRateioPremio, fm[ac]);
+        }
+        if (dados.listaDezenasSegundoSorteio) {
+          const ac = _acertos(dados.listaDezenasSegundoSorteio, dezenas);
+          if (ac >= 3) total += _premioFaixa(dados.listaRateioPremio, fm[ac]);
+        }
+        return total;
+      }
+      function setStatus(key, classe, texto) {
+        const el = document.getElementById("status-" + key);
+        if (!el) return;
+        el.className = "card-status " + classe;
+        el.textContent = texto;
+      }
+      function fmtMoney(v) {
+        return "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      jogosVisiveis.forEach(function(jogo) {
+        (async function() {
+          try {
+            // Teimosinha: verifica primeiro e último concurso do lote
+            if (jogo.statusTipo === "teimosinha") {
+              const teiCfg = jogo.cfg.JOGOS && jogo.cfg.JOGOS[0];
+              if (!teiCfg) return;
+              const dadosPrimeiro = await ApiCaixa.buscarConcurso("lotofacil", teiCfg.concursoInicial, 1);
+              if (dadosPrimeiro.status === "notfound" || !dadosPrimeiro.listaDezenas || dadosPrimeiro.listaDezenas.length < 15) {
+                setStatus(jogo.statusKey, "card-status-aguardando", "Aguardando sorteio");
+              } else {
+                const ultimoConcurso = teiCfg.concursoInicial + teiCfg.quantidadeTeimosinha - 1;
+                const dadosUltimo = await ApiCaixa.buscarConcurso("lotofacil", ultimoConcurso, 1);
+                if (dadosUltimo.status !== "notfound" && dadosUltimo.listaDezenas && dadosUltimo.listaDezenas.length >= 15) {
+                  setStatus(jogo.statusKey, "card-status-andamento", "Teimosinha concluída");
+                } else {
+                  setStatus(jogo.statusKey, "card-status-andamento", "Em andamento");
+                }
+              }
+              return;
+            }
+
+            // Jogos simples (lotofacil, megasena, duplasena)
+            const minDezenas = jogo.statusTipo === "lotofacil" ? 15 : 6;
+            const dados = await ApiCaixa.buscarConcurso(jogo.statusTipo, jogo.cfg.CONCURSO, 1);
+
+            if (dados.status === "notfound" || !dados.listaDezenas || dados.listaDezenas.length < minDezenas) {
+              setStatus(jogo.statusKey, "card-status-aguardando", "Aguardando sorteio");
+              return;
+            }
+
+            const fracao = jogo.cfg.bolao
+              ? ((jogo.cfg.cotaBolaoNumerador || 1) / (jogo.cfg.cotaBalaoDenominador || 1))
+              : 1;
+            let total = 0;
+            for (const g of jogo.cfg.JOGOS) {
+              if (jogo.statusTipo === "lotofacil")  total += _premioLotofacil(dados, g.dezenas);
+              else if (jogo.statusTipo === "megasena")  total += _premioMegaSena(dados, g.dezenas);
+              else if (jogo.statusTipo === "duplasena") total += _premioDuplaSena(dados, g.dezenas);
+            }
+            total *= fracao;
+
+            if (total > 0) {
+              setStatus(jogo.statusKey, "card-status-premiado", "Premiado: " + fmtMoney(total));
+            } else {
+              setStatus(jogo.statusKey, "card-status-sem-premio", "Sem prêmio");
+            }
+          } catch(e) {
+            const el = document.getElementById("status-" + jogo.statusKey);
+            if (el) el.style.display = "none";
+          }
+        })();
       });
     })();
 
@@ -286,7 +410,7 @@
         div.innerHTML = `
           <div class="info-card card-proximo">
             <div class="info-card-header">
-              <span class="info-card-title">🎯 Próximo Jogo</span>
+              <span class="info-card-title">Próximo Jogo</span>
               <span class="info-badge ${badgeClass}">${cfg.tipo === "teimosinha" ? "Teimosinha" : "Simples"}</span>
             </div>
             <div class="info-row"><span class="info-label">Jogo:</span><span class="info-value">${nomeExibido}${bolaoLabel}</span></div>
@@ -316,7 +440,7 @@
       document.getElementById("card-saldos").innerHTML = `
         <div class="info-card card-saldos">
           <div class="info-card-header">
-            <span class="info-card-title">💰 Saldo dos Jogadores</span>
+            <span class="info-card-title">Saldo dos Jogadores</span>
           </div>
           <table class="saldo-table">
             <thead><tr><th>Jogador</th><th>Saldo</th></tr></thead>
