@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════╗
- * ║               LOT — CONFIGURAÇÃO CENTRAL                    ║
+ * ║               LOT — CONFIGURAÇÃO CENTRAL                     ║
  * ║  Edite este arquivo para atualizar jogos e jogadores.        ║
  * ╚══════════════════════════════════════════════════════════════╝
  */
@@ -42,7 +42,7 @@ const CONFIG = {
   lotofacil: {
     // visivel: true  → mostra o card na página inicial
     // visivel: false → esconde o card
-    visivel: true,
+    visivel: false,
 
     // Número do concurso. Deixe null para buscar o último automaticamente.
     CONCURSO: 3679,
@@ -221,7 +221,7 @@ const CONFIG = {
      visivel: false → esconde o card
   ────────────────────────────────────────── */
   saldos: {
-    visivel: true,
+    visivel: false,
     jogadores: [
       { nome: "Rafael",   saldo: 0.23 },
       { nome: "Luno",     saldo: 0.12 },
