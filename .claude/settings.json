@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"=== TEMPLATE harness-lite ===\" && find \"C:/Users/daldo/Documents/GitHub/harness-templates/harness-lite\" -not -path '*/.git/*' -not -name '.git' | sort)",
+      "Read(//c/Users/daldo/Documents/GitHub/harness-templates/harness-lite/**)",
+      "Bash(mkdir -p .claude/commands/claude ai-docs)",
+      "Bash(cp \"C:/Users/daldo/Documents/GitHub/harness-templates/harness-lite/.claude/commands/claude/learning.md\" .claude/commands/claude/learning.md)",
+      "Bash(cp \"C:/Users/daldo/Documents/GitHub/harness-templates/harness-lite/.claude/commands/claude/manual-verify.md\" .claude/commands/claude/manual-verify.md)",
+      "Bash(cp \"C:/Users/daldo/Documents/GitHub/harness-templates/harness-lite/ai-docs/lessons.md\" ai-docs/lessons.md)",
+      "Bash(echo \"=== Financeiro-Pessoal: estrutura \\(sem node_modules/.git\\) ===\" && find \"C:/Users/daldo/Documents/GitHub/Financeiro-Pessoal\" -not -path '*/.git/*' -not -path '*/node_modules/*' -type f 2>/dev/null | sort | head -120)",
+      "Read(//c/Users/daldo/Documents/GitHub/Financeiro-Pessoal/**)",
+      "Bash(git add *)",
+      "Bash(git commit -m '@ *)"
+    ]
+  }
+}

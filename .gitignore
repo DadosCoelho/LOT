@@ -1,3 +1,26 @@
+# Projeto LOT
 /index.html.txt
 icon.png
 task.txt
+
+# macOS
+.DS_Store
+
+# Dependencies / build artefacts
+node_modules/
+dist/
+.turbo/
+.next/
+coverage/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Claude Code session-local files (not portable across machines)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Playwright MCP runtime artefacts
+.playwright-mcp/
