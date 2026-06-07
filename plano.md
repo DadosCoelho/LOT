@@ -14,7 +14,31 @@ técnico, decisões de design e acompanhamento da implementação.
 
 - **Data de criação:** 07/06/2026
 - **Última atualização:** 07/06/2026
-- **Status geral:** `[ ]` não iniciado · decisões fechadas (ver "Decisões tomadas").
+- **Status geral:** `[~]` em andamento. Código das Etapas 0–6 implementado e
+  funcionando em modo fallback (config.js local). Falta a parte que só você faz:
+  criar o projeto no Firebase, colar o `firebaseConfig` real, publicar as regras
+  e liberar seu e-mail em `autorizados`. Depois, Etapa 7 (deploy/verificação).
+
+### Progresso (07/06/2026)
+
+Arquivos criados/alterados:
+
+- `firebase-config.js` — placeholders + instruções (cole os valores reais).
+- `firebase-init.js` — inicializa o SDK; expõe `window.fbAuth`/`fbDb`; degrada
+  para `null` enquanto houver placeholders.
+- `firestore.rules` — leitura pública de `config`, escrita só e-mail autorizado.
+- `config-store.js` — `LotConfig.carregar/salvar/sincronizarBackground`
+  (Firestore ↔ cache em `localStorage` ↔ seed).
+- `config.js` — virou **seed** (`CONFIG_SEED`); `CONFIG` resolve cache→seed.
+- `gerenciar.html` + `gerenciar.js` — login Google, checagem de allowlist,
+  toggles de ativar/desativar + editor JSON, salvar/recarregar/seed.
+- `index.html` + 4 páginas de modalidade — incluem o Firebase e sincronizam o
+  cache em background; rodapé do `index` agora linka para `gerenciar.html`.
+
+**Comportamento das mudanças de config:** as páginas públicas leem do cache; uma
+edição salva no Firestore aparece no **próximo carregamento** da página (o
+background sync atualiza o cache). No navegador de quem salvou, o cache é
+atualizado na hora.
 
 ### Visão geral
 
@@ -99,7 +123,7 @@ service cloud.firestore {
 
 ### Etapas
 
-#### Etapa 0 — Projeto Firebase + arquivos base · `[ ]`
+#### Etapa 0 — Projeto Firebase + arquivos base · `[~]`  (código pronto; falta criar o projeto no console)
 
 - [ ] Criar projeto no console do Firebase (ou reaproveitar um existente) e
       ativar **Authentication → Google** e **Firestore**.
@@ -111,28 +135,28 @@ service cloud.firestore {
 - [ ] Garantir no `.gitignore` que nenhum segredo de _service account_ entre no
       repo (o `firebaseConfig` público pode ser versionado).
 
-#### Etapa 1 — Modelo de dados + seed · `[ ]`
+#### Etapa 1 — Modelo de dados + seed · `[~]`  (mecanismo de seed pronto no gerenciar; rodar com Firebase real)
 
 - [ ] Definir o documento `config/principal` com o mesmo shape do `CONFIG`.
 - [ ] Fazer o **seed inicial** a partir do `config.js` atual (uma vez), seja por
       script ou pela própria página de gerenciamento na primeira execução.
 - [ ] Manter `config.js` no repo como _fallback_ e referência de formato.
 
-#### Etapa 2 — Camada de acesso (`config-store.js`) · `[ ]`
+#### Etapa 2 — Camada de acesso (`config-store.js`) · `[x]`
 
 - [ ] Implementar `carregarConfig()` (Firestore → fallback `config.js`).
 - [ ] Implementar `salvarConfig(novoConfig)` (escreve `config/principal`; usado
       só pela página de gerenciamento).
 - [ ] Expor `window.CONFIG` já preenchido para o código de render existente.
 
-#### Etapa 3 — Páginas públicas lendo do Firestore · `[ ]`
+#### Etapa 3 — Páginas públicas lendo do Firestore · `[x]`  (via cache + background sync)
 
 - [ ] Ajustar `index.html` e as 4 páginas de modalidade para aguardar
       `carregarConfig()` antes de renderizar os cards.
 - [ ] **Não alterar** a aparência nem a lógica de cálculo — só a origem do dado.
 - [ ] Verificar que, offline ou sem Firebase, o app ainda funciona via fallback.
 
-#### Etapa 4 — Login Google + controle de acesso · `[ ]`
+#### Etapa 4 — Login Google + controle de acesso · `[x]`  (depende do projeto Firebase real)
 
 - [ ] Fluxo de login Google (`signInWithPopup`) na página de gerenciamento.
 - [ ] Após o login, checar `autorizados/{email}` para saber se o usuário pode
@@ -143,7 +167,7 @@ service cloud.firestore {
 - [ ] Publicar `firestore.rules` (leitura pública de `config`, escrita só
       e-mail autorizado).
 
-#### Etapa 5 — Página de gerenciamento (`gerenciar.html` + `gerenciar.js`) · `[ ]`
+#### Etapa 5 — Página de gerenciamento (`gerenciar.html` + `gerenciar.js`) · `[x]`
 
 - [ ] Interface que espelha o `config.js`, seção por seção:
   - [ ] **Ativar/desativar** cada card (toggle do `visivel`).
@@ -154,7 +178,7 @@ service cloud.firestore {
 - [ ] Validar a entrada (ex.: nº de dezenas por modalidade, "pelo menos um
       jogador com cotas > 0") antes de salvar.
 
-#### Etapa 6 — Link de acesso pelo rodapé · `[ ]`
+#### Etapa 6 — Link de acesso pelo rodapé · `[x]`
 
 - [ ] Tornar o rodapé "LOTERIAS · Projeto pessoal…" do `index.html` clicável,
       abrindo `gerenciar.html`.

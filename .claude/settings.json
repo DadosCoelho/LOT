@@ -10,7 +10,13 @@
       "Bash(echo \"=== Financeiro-Pessoal: estrutura \\(sem node_modules/.git\\) ===\" && find \"C:/Users/daldo/Documents/GitHub/Financeiro-Pessoal\" -not -path '*/.git/*' -not -path '*/node_modules/*' -type f 2>/dev/null | sort | head -120)",
       "Read(//c/Users/daldo/Documents/GitHub/Financeiro-Pessoal/**)",
       "Bash(git add *)",
-      "Bash(git commit -m '@ *)"
+      "Bash(git commit -m '@ *)",
+      "Bash(git commit --amend -m 'chore: adicionar kit Claude Code lite e plano de migração para Firebase' -m '- Aplica o template harness-lite \\(CLAUDE.md, comandos /claude:learning e /claude:manual-verify, ai-docs/lessons.md\\) e mescla .gitignore *)",
+      "Bash(git push *)",
+      "Bash(python -c 'import re,io,sys *)",
+      "Bash(node -e ' *)",
+      "Bash(firebase login:list)",
+      "Bash(firebase projects:list)"
     ]
   }
 }

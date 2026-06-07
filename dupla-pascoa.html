@@ -246,6 +246,13 @@
 <!-- Carrega a configuração central antes da lógica -->
 <script src="api.js"></script>
 <script src="config.js"></script>
+<!-- Firebase (somente leitura/sync da config; degrada se não configurado) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="firebase-init.js"></script>
+<script src="config-store.js"></script>
+<script>if (window.LotConfig) LotConfig.sincronizarBackground();</script>
 <script>
   // Lê os dados do config central
   const CONCURSO_PASCOA = CONFIG.duplaPascoa.CONCURSO;

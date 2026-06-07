@@ -202,11 +202,18 @@
       <div id="card-saldos"></div>
     </div>
 
-    <div class="footer">LOTERIAS · Projeto pessoal de acompanhamento de loterias</div>
+    <a class="footer" href="gerenciar.html" style="text-decoration:none;color:inherit;cursor:pointer;">LOTERIAS · Projeto pessoal de acompanhamento de loterias</a>
   </div>
 
   <script src="api.js"></script>
   <script src="config.js"></script>
+  <!-- Firebase (somente leitura/sync da config; degrada se não configurado) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-init.js"></script>
+  <script src="config-store.js"></script>
+  <script>if (window.LotConfig) LotConfig.sincronizarBackground();</script>
   <script>
     /* ── Jogos existentes (visíveis via visivel no config) ── */
     (function () {

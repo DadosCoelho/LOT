@@ -3,9 +3,16 @@
  * ║               LOT — CONFIGURAÇÃO CENTRAL                     ║
  * ║  Edite este arquivo para atualizar jogos e jogadores.        ║
  * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * Este objeto é o SEED (configuração inicial e fallback). A fonte de verdade
+ * em produção é o Firestore (config/principal), gerenciado pela página
+ * gerenciar.html. As páginas leem `CONFIG`, que resolve nesta ordem:
+ *   1) cache do Firestore em localStorage['lot_config_cache'];
+ *   2) este CONFIG_SEED, se não houver cache.
+ * O config-store.js atualiza o cache em background a partir do Firestore.
  */
 
-const CONFIG = {
+const CONFIG_SEED = {
 
   /* ──────────────────────────────────────────
      TEIMOSINHA — LOTOFÁCIL
@@ -234,3 +241,21 @@ const CONFIG = {
   }
 
 };
+
+/* ──────────────────────────────────────────
+   Resolve CONFIG: cache do Firestore (localStorage) → seed.
+   Mantém as páginas síncronas; o config-store.js atualiza o cache.
+────────────────────────────────────────── */
+var CONFIG = (function () {
+  try {
+    var raw = localStorage.getItem("lot_config_cache");
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") return parsed;
+    }
+  } catch (e) {}
+  return CONFIG_SEED;
+})();
+
+window.CONFIG = CONFIG;
+window.CONFIG_SEED = CONFIG_SEED;

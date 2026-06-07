@@ -24,3 +24,7 @@ coverage/
 
 # Playwright MCP runtime artefacts
 .playwright-mcp/
+
+# Firebase CLI
+firebase-debug.log
+.firebase/

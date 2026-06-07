@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Autorizado = está logado E existe um doc autorizados/<email-do-usuário>.
+    // A allowlist é gerenciada manualmente pelo console do Firebase.
+    function autorizado() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/autorizados/$(request.auth.token.email));
+    }
+
+    // O próprio usuário pode checar se está liberado (para a UI da página de
+    // gerenciamento decidir o que mostrar). Escrita só pelo console.
+    match /autorizados/{email} {
+      allow read:  if request.auth != null && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    // Configuração dos jogos: leitura pública (páginas de visualização leem
+    // sem login); escrita só para e-mail autorizado.
+    match /config/{doc} {
+      allow read:  if true;
+      allow write: if autorizado();
+    }
+  }
+}
