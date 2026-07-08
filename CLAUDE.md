@@ -59,8 +59,10 @@ These are the defaults every change should follow:
 - **Conventions:**
   - Páginas principais: `index.html` (hub), `lotofacil.html`,
     `lotofacil-teimosinha.html`, `mega-sena.html`, `dupla-pascoa.html`.
-  - `config.js` expõe um objeto global `CONFIG` — é o **ponto central** para
-    editar jogos, jogadores, cotas e visibilidade de cards (`visivel: true/false`).
+  - A configuração dos jogos é editada em **`gerenciar.html`** (editor visual
+    com login Google), que salva no Firestore (`config/principal`). `config.js`
+    expõe `CONFIG` (cache do Firestore → seed) e serve de seed/fallback — as
+    páginas continuam lendo `CONFIG` normalmente.
   - `api.js` expõe utilitários no escopo global (IIFE) com retry/backoff para a
     API da Caixa (trata 429/500/404). Reuse `buscarComRetry` em vez de criar
     novos fetches.
